@@ -541,6 +541,8 @@ body::before{
 .btn-sm{padding:7px 13px;font-size:12px;}
 .btn-icon{padding:8px;border-radius:var(--r-sm);background:var(--glass-2);border:1px solid var(--glass-border);color:var(--text-muted);cursor:pointer;}
 .btn-icon:hover{color:var(--text);background:var(--glass-1);border-color:var(--glass-border-strong);}
+.voice-input-btn.voice-listening{color:#fff;background:var(--danger);border-color:var(--danger);animation:voice-pulse 1.2s ease-in-out infinite;}
+@keyframes voice-pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
 
 .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
 .section-head h1{font-family:'Oswald',sans-serif;font-size:25px;margin:0;font-weight:600;letter-spacing:-.4px;}

@@ -34,6 +34,7 @@ const FILE_ORDER = [
   'sync-engine.js',
   'license.js',
   'ai-assist.js',
+  'voice-input.js',
   'utils.js',
   'state.js',
   'icons.js',

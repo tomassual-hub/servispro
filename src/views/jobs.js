@@ -155,7 +155,7 @@ function jobDetailModalHTML(j){
       <div style="font-size:14px;font-weight:600;">${c?esc(c.name):'—'}</div>
       <div style="font-size:12.5px;color:var(--text-muted);">${v?esc(v.model)+' · '+esc(v.color):'—'}</div>
     </div>
-    <div class="field"><label>${en?'Job Description':'Penerangan Kerja'}</label><textarea id="job-desc-edit" rows="2">${esc(j.description||'')}</textarea></div>
+    <div class="field"><label style="display:flex;justify-content:space-between;align-items:center;"><span>${en?'Job Description':'Penerangan Kerja'}</span>${voiceInputBtnHTML('job-desc-edit')}</label><textarea id="job-desc-edit" rows="2">${esc(j.description||'')}</textarea></div>
     <div class="field"><label>${tt('Mekanik')}</label><input id="job-mechanic-edit" value="${esc(j.mechanic||'')}"></div>
     ${!db.settings.simpleMode && (db.bays||[]).length>0 ? `
     <div class="field"><label>${ICONS.bay} ${en?'Bay':'Bay'}</label>
@@ -235,7 +235,7 @@ function newJobModalHTML(){
         <div class="field"><label>${state.language==='en'?'Model / Color':'Model / Warna'}</label><input id="nj-new-model" placeholder="${state.language==='en'?'Perodua Myvi 2019, White':'Perodua Myvi 2019, Putih'}"></div>
       </div>
     </div>
-    <div class="field"><label>${state.language==='en'?'Job Description':'Penerangan Kerja'}</label><textarea id="nj-desc" rows="3" placeholder="${state.language==='en'?'e.g. Regular service, engine oil & filter change':'Cth: Servis biasa, tukar minyak enjin & penapis'}"></textarea></div>
+    <div class="field"><label style="display:flex;justify-content:space-between;align-items:center;"><span>${state.language==='en'?'Job Description':'Penerangan Kerja'}</span>${voiceInputBtnHTML('nj-desc')}</label><textarea id="nj-desc" rows="3" placeholder="${state.language==='en'?'e.g. Regular service, engine oil & filter change':'Cth: Servis biasa, tukar minyak enjin & penapis'}"></textarea></div>
     <div class="field"><label>${state.language==='en'?'Assigned Mechanic':'Mekanik Bertugas'}</label><input id="nj-mechanic" placeholder="${state.language==='en'?'e.g. Mr. Razak':'Cth: Encik Razak'}"></div>
     ${!db.settings.simpleMode && (db.bays||[]).length>0 ? `
     <div class="field"><label>${ICONS.bay} ${state.language==='en'?'Bay (optional)':'Bay (pilihan)'}</label>
