@@ -171,3 +171,35 @@ Until at least one of `GEMINI_API_KEY`/`GROQ_API_KEY` is set, this returns
 `{ error: "not_configured" }` and the assistant replies with a generic
 "can't answer right now" message instead of a real one — the chat UI
 itself still opens and works either way.
+
+## ai-suggest-quote-items
+
+Suggests which of this shop's OWN inventory items (and roughly how many)
+a mechanic likely needs for a job, based on its description + inspection
+findings (see the "AI Suggestion" button in POS once a job is linked in,
+`src/ai-assist.js`/`src/views/pos.js`). A starting point for building a
+quotation/invoice — the cart is still reviewed and adjusted by hand
+exactly as before; this only pre-fills suggested rows.
+
+Same Gemini-primary/Groq-fallback reasoning as `ai-suggest-checklist`
+above — and the SAME `GEMINI_API_KEY`/`GROQ_API_KEY` secrets, so if those
+are already set for the other AI functions, this one works immediately
+with no extra setup.
+
+### Deploy
+
+Same as the others — Dashboard → Edge Functions → Deploy a new function →
+name it exactly `ai-suggest-quote-items` → paste
+`ai-suggest-quote-items/index.ts`.
+
+### Secrets
+
+| Secret | Value |
+|---|---|
+| `GEMINI_API_KEY` | Same key as the other AI functions above — free, from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+| `GROQ_API_KEY` | Optional fallback, same key as the other AI functions above if you set one there — free, from [console.groq.com/keys](https://console.groq.com/keys) |
+
+Until at least one of `GEMINI_API_KEY`/`GROQ_API_KEY` is set, this returns
+`{ error: "not_configured" }` and the button in POS shows "AI suggestion
+isn't available right now" instead of a suggestion — nothing else about
+POS changes.

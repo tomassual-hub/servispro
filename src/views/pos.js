@@ -1,3 +1,41 @@
+/* ============================= AI QUOTE ITEM SUGGESTIONS (POS) =============================
+   Renders the "AI Cadangan Item" trigger/panel shown in the cart panel
+   when a job is linked into POS (state.posJobId) -- see requestAiQuoteSuggestion()
+   in src/ai-assist.js and the job-to-pos/ai-suggest-quote-items/
+   add-ai-quote-item/add-all-ai-quote-items actions in event-handlers.js. */
+function renderAiQuoteSuggestionBox(){
+  const en = state.language==='en';
+  const ai = state.aiQuoteSuggestion;
+  if(!ai){
+    return `<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:14px;" data-action="ai-suggest-quote-items">${ICONS.sparkle} ${en?'AI Suggestion (items for this job)':'Cadangan AI (item untuk kerja ini)'}</button>`;
+  }
+  if(ai==='loading'){
+    return `<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">${en?'Asking AI…':'Bertanya AI…'}</div>`;
+  }
+  if(ai==='unavailable'){
+    return `<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${en?'AI suggestion isn\'t available right now.':'Cadangan AI tidak tersedia buat masa ini.'}</div>`;
+  }
+  if(ai==='rate_limited'){
+    return `<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${en?'AI is busy right now. Try again shortly.':'AI sedang sibuk buat masa ini. Cuba sebentar lagi.'}</div>`;
+  }
+  if(ai.items.length===0){
+    return `<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${en?'No AI suggestions right now.':'Tiada cadangan AI buat masa ini.'}</div>`;
+  }
+  return `
+  <div class="panel" style="background:var(--accent-soft);border-color:var(--accent);padding:12px;margin-bottom:14px;">
+    <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">${ICONS.sparkle} ${en?'AI suggestion — a starting point, not a final bill':'Cadangan AI — titik permulaan, bukan bil akhir'}</div>
+    ${ai.items.map((item,idx)=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;${idx<ai.items.length-1?'border-bottom:1px solid var(--border);':''}">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12.5px;font-weight:600;">${esc(item.name)} <span style="color:var(--text-muted);font-weight:400;">× ${item.qty}</span></div>
+          ${item.reason ? `<div style="font-size:11px;color:var(--text-muted);">${esc(item.reason)}</div>` : ''}
+        </div>
+        <button class="btn-icon" data-action="add-ai-quote-item" data-idx="${idx}" title="${en?'Add to cart':'Tambah ke troli'}">${ICONS.plus}</button>
+      </div>`).join('')}
+    <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:10px;" data-action="add-all-ai-quote-items">${en?'Add All to Cart':'Tambah Semua ke Troli'}</button>
+  </div>`;
+}
+
 /* ============================= POS VIEW ============================= */
 function viewPOS(){
   // Invoice history and cash-closing totals are sales/revenue figures —
@@ -93,6 +131,8 @@ function viewPOS(){
         }
         return `<div style="font-size:11.5px;color:var(--text-muted);margin-bottom:14px;">${visits}/${threshold} ${state.language==='en'?'visits to loyalty discount':'lawatan ke diskaun setia'}</div>`;
       })()}` : ''}
+
+      ${state.posJobId ? renderAiQuoteSuggestionBox() : ''}
 
       <div style="margin:14px 0;">
         ${cart.length===0 ? emptyState(tt('Troli kosong. Pilih item di sebelah kiri.')) : cart.map((c,idx)=>`

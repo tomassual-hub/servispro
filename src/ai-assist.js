@@ -34,6 +34,53 @@ async function requestAiSuggestion(job){
   }
 }
 
+/* ============================= AI QUOTE ITEM SUGGESTIONS =============================
+   Calls the ai-suggest-quote-items Edge Function to suggest which of this
+   shop's OWN inventory items (and roughly how many) a mechanic would
+   likely need for a job, based on its description + inspection findings
+   (items marked "attention"/"replace"). A starting point for building a
+   quotation/invoice in POS -- the mechanic still reviews and adjusts the
+   cart by hand exactly as before; this only pre-fills suggestions. Only
+   usable once a job is linked into POS (state.posJobId), since that's
+   where the description/findings come from -- see the "job-to-pos" action
+   in event-handlers.js and the AI button in pos.js. */
+
+async function requestAiQuoteSuggestion(){
+  const job = db.jobs.find(j=>j.id===state.posJobId);
+  if(!job) return;
+  const v = getVehicle(job.vehicleId);
+  const findings = Object.entries(job.inspection||{})
+    .filter(([,st])=>st==='attention'||st==='replace')
+    .map(([item,status])=>({item, status}));
+  if(!(job.description||'').trim() && findings.length===0){
+    showToast(tt('Tiada penerangan kerja atau dapatan pemeriksaan untuk dianalisis.'));
+    return;
+  }
+  state.aiQuoteSuggestion = 'loading';
+  render();
+  try{
+    const { data, error } = await supabaseClient.functions.invoke('ai-suggest-quote-items', {
+      body: {
+        description: job.description, vehicleModel: v ? v.model : null, findings,
+        inventory: db.inventory.map(i=>({id:i.id, name:i.name})),
+        lang: state.language,
+      }
+    });
+    if(error) throw error;
+    if(!data || data.error){
+      state.aiQuoteSuggestion = data && data.error==='rate_limited' ? 'rate_limited' : 'unavailable';
+      render();
+      return;
+    }
+    state.aiQuoteSuggestion = { items: data.items||[] };
+    render();
+  }catch(e){
+    reportError(e, 'Gagal dapatkan cadangan sebut harga AI');
+    state.aiQuoteSuggestion = 'unavailable';
+    render();
+  }
+}
+
 /* ============================= AI ASSISTANT (standalone) =============================
    Calls the ai-assistant Edge Function -- a general Q&A chat, deliberately
    independent of any other feature (not a job, not a shortcut to an

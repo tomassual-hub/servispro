@@ -7,6 +7,7 @@ let state = {
   posCustomerId: '',
   posVehicleId: '',
   posJobId: '',
+  aiQuoteSuggestion: /** @type {'loading'|'unavailable'|'rate_limited'|{items:{id:string,name:string,qty:number,reason:string}[]}|null} */ (null),
   invTab: 'semua',
   jobFilter: 'semua',
   reportRange: 30,

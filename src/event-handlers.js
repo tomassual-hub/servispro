@@ -1548,8 +1548,35 @@ function attachHandlers(){
     state.posVehicleId = job.vehicleId;
     state.posJobId = job.id;
     state.posCart = [];
+    state.aiQuoteSuggestion = null; // fresh each time -- never carry a previous job's suggestion into this one
     setState({modal:null, view:'pos'});
     showToast(tt('Sedia untuk buat invois bagi ')+job.jobNo);
+  });
+  bindAllAction('ai-suggest-quote-items', ()=>{
+    requestAiQuoteSuggestion();
+  });
+  bindAllAction('voice-input', el=>{
+    startVoiceInput(el.dataset.target, el);
+  });
+  bindAllAction('add-ai-quote-item', el=>{
+    const suggestion = state.aiQuoteSuggestion;
+    if(!suggestion || typeof suggestion!=='object') return;
+    const item = suggestion.items[Number(el.dataset.idx)];
+    if(!item) return;
+    const invItem = db.inventory.find(i=>i.id===item.id);
+    state.posCart.push({ refId: item.id, name: invItem ? invItem.name : item.name, price: invItem ? invItem.price : 0, qty: item.qty });
+    suggestion.items = suggestion.items.filter((_,idx)=>idx!==Number(el.dataset.idx));
+    render();
+  });
+  bindAllAction('add-all-ai-quote-items', ()=>{
+    const suggestion = state.aiQuoteSuggestion;
+    if(!suggestion || typeof suggestion!=='object') return;
+    for(const item of suggestion.items){
+      const invItem = db.inventory.find(i=>i.id===item.id);
+      state.posCart.push({ refId: item.id, name: invItem ? invItem.name : item.name, price: invItem ? invItem.price : 0, qty: item.qty });
+    }
+    suggestion.items = [];
+    render();
   });
   bindAllAction('open-inspection', el=>{
     const job = db.jobs.find(j=>j.id===el.dataset.id);
