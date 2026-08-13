@@ -49,6 +49,18 @@ async function requestAiSuggestion(job){
    leaves items sitting in a side panel for the mechanic to Add/Add All by
    hand -- see renderAiQuoteSuggestionBox() in views/pos.js. */
 
+// render() replaces the entire page and resets scroll to the top every
+// time (true everywhere in this app, not just here) -- the manual "Cadangan
+// AI" button sits down in the cart panel, so pressing it snaps the
+// mechanic back to the item picker at the top before the result (loading
+// text, then the actual suggestion box) ever lands, making a working
+// suggestion look like nothing happened. Only used for the manual
+// (non-silent) path; the automatic job-to-pos trigger relies on its own
+// toast instead, which is position:fixed and visible regardless of scroll.
+function scrollAiQuoteBoxIntoView(){
+  document.getElementById('ai-quote-suggestion-box')?.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
 async function requestAiQuoteSuggestion(silent){
   const job = db.jobs.find(j=>j.id===state.posJobId);
   if(!job) return;
@@ -67,6 +79,7 @@ async function requestAiQuoteSuggestion(silent){
   }
   state.aiQuoteSuggestion = 'loading';
   render();
+  if(!silent) scrollAiQuoteBoxIntoView();
   try{
     const { data, error } = await supabaseClient.functions.invoke('ai-suggest-quote-items', {
       body: {
@@ -77,8 +90,16 @@ async function requestAiQuoteSuggestion(silent){
     });
     if(error) throw error;
     if(!data || data.error){
+      // A structured {error} response (HTTP 200) never throws, so without
+      // this it was previously invisible everywhere -- console, Sentry, the
+      // UI (just a generic "not available" line) -- with no way to tell
+      // "rate limited" apart from "misconfigured" apart from "not staff"
+      // short of reading Supabase's own function logs. Surface anything
+      // that ISN'T the expected/benign rate_limited case.
+      if(!data || data.error!=='rate_limited') reportError(new Error('ai-suggest-quote-items: '+(data ? data.error : 'empty response')), 'Cadangan sebut harga AI - respons ralat');
       state.aiQuoteSuggestion = data && data.error==='rate_limited' ? 'rate_limited' : 'unavailable';
       render();
+      if(!silent) scrollAiQuoteBoxIntoView();
       return;
     }
     const items = data.items||[];
@@ -102,10 +123,12 @@ async function requestAiQuoteSuggestion(silent){
     }
     state.aiQuoteSuggestion = { items };
     render();
+    scrollAiQuoteBoxIntoView();
   }catch(e){
     reportError(e, 'Gagal dapatkan cadangan sebut harga AI');
     state.aiQuoteSuggestion = 'unavailable';
     render();
+    if(!silent) scrollAiQuoteBoxIntoView();
   }
 }
 

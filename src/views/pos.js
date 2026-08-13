@@ -6,23 +6,32 @@
 function renderAiQuoteSuggestionBox(){
   const en = state.language==='en';
   const ai = state.aiQuoteSuggestion;
+  // Wrapped in a stable #ai-quote-suggestion-box id regardless of which
+  // state below renders -- render() replaces the ENTIRE page and resets
+  // scroll to the top every time (true for every render in this app, not
+  // just this one), so a mechanic who scrolled down to press the button
+  // gets kicked back to the item picker at the top before the result is
+  // even in. requestAiQuoteSuggestion() (ai-assist.js) scrolls this id
+  // back into view after every render it triggers, for the manual button
+  // press -- the silent auto-trigger from job-to-pos relies on its own
+  // toast instead (position:fixed, visible regardless of scroll).
   if(!ai){
-    return `<button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:14px;" data-action="ai-suggest-quote-items">${ICONS.sparkle} ${en?'AI Suggestion (items for this job)':'Cadangan AI (item untuk kerja ini)'}</button>`;
+    return `<button id="ai-quote-suggestion-box" class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-bottom:14px;" data-action="ai-suggest-quote-items">${ICONS.sparkle} ${en?'AI Suggestion (items for this job)':'Cadangan AI (item untuk kerja ini)'}</button>`;
   }
   if(ai==='loading'){
-    return `<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">${en?'Asking AI…':'Bertanya AI…'}</div>`;
+    return `<div id="ai-quote-suggestion-box" style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">${en?'Asking AI…':'Bertanya AI…'}</div>`;
   }
   if(ai==='unavailable'){
-    return `<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${en?'AI suggestion isn\'t available right now.':'Cadangan AI tidak tersedia buat masa ini.'}</div>`;
+    return `<div id="ai-quote-suggestion-box" style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${en?'AI suggestion isn\'t available right now.':'Cadangan AI tidak tersedia buat masa ini.'}</div>`;
   }
   if(ai==='rate_limited'){
-    return `<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${en?'AI is busy right now. Try again shortly.':'AI sedang sibuk buat masa ini. Cuba sebentar lagi.'}</div>`;
+    return `<div id="ai-quote-suggestion-box" style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${en?'AI is busy right now. Try again shortly.':'AI sedang sibuk buat masa ini. Cuba sebentar lagi.'}</div>`;
   }
   if(ai.items.length===0){
-    return `<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${en?'No AI suggestions right now.':'Tiada cadangan AI buat masa ini.'}</div>`;
+    return `<div id="ai-quote-suggestion-box" style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">${en?'No AI suggestions right now.':'Tiada cadangan AI buat masa ini.'}</div>`;
   }
   return `
-  <div class="panel" style="background:var(--accent-soft);border-color:var(--accent);padding:12px;margin-bottom:14px;">
+  <div id="ai-quote-suggestion-box" class="panel" style="background:var(--accent-soft);border-color:var(--accent);padding:12px;margin-bottom:14px;">
     <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">${ICONS.sparkle} ${en?'AI suggestion — a starting point, not a final bill':'Cadangan AI — titik permulaan, bukan bil akhir'}</div>
     ${ai.items.map((item,idx)=>`
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;${idx<ai.items.length-1?'border-bottom:1px solid var(--border);':''}">
