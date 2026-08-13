@@ -34,6 +34,11 @@ function computeMonthlyPay(staffMember, month){
   const jobsById = new Map(db.jobs.map(j=>[j.id, j]));
   let commissionRevenue = 0;
   db.invoices.forEach(inv=>{
+    // A draft invoice (auto-created empty when a job is sent to POS, see
+    // job-to-pos in event-handlers.js) has items:[]/total:0 anyway, so it
+    // wouldn't add commission on its own -- excluded mainly so a mechanic
+    // isn't shown as having "sold" something that's still an empty draft.
+    if(inv.draft) return;
     if(inv.createdAt<periodStart || inv.createdAt>=periodEnd) return;
     if(!inv.jobId) return;
     const job = jobsById.get(inv.jobId);

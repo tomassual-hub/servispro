@@ -113,6 +113,24 @@ function viewFinance(){
         <tbody>
           ${list.map(inv=>{
             const c = getCustomer(inv.customerId);
+            if(inv.draft){
+              // Auto-created empty when a job was sent to POS (see
+              // job-to-pos in event-handlers.js) and never finished --
+              // none of the normal invoice actions (settle balance,
+              // credit note, print, share) make sense on an empty RM0
+              // draft, so this row gets its own pair of actions instead:
+              // pick the cart back up where it was left, or drop it.
+              return `<tr>
+                <td style="font-family:'IBM Plex Mono',monospace;">${inv.invoiceNo}</td>
+                <td>${c?esc(c.name):tt('Walk-in')}</td>
+                <td>${fmtDateTime(inv.createdAt)}</td>
+                <td colspan="3"><span class="pill pill-wait">${en?'Draft — not finished':'Draf — belum siap'}</span></td>
+                <td style="white-space:nowrap;">
+                  <button class="btn-icon" data-action="resume-draft-invoice" data-id="${inv.id}" title="${en?'Resume':'Sambung'}">${ICONS.edit}</button>
+                  <button class="btn-icon" data-action="delete-draft-invoice" data-id="${inv.id}" title="${en?'Discard draft':'Buang draf'}">${ICONS.trash}</button>
+                </td>
+              </tr>`;
+            }
             const waText = encodeURIComponent(`Salam ${c?c.name:''}, berikut invois ${inv.invoiceNo} bernilai ${fmtRM(inv.total)} daripada ${db.settings.shopName}. Terima kasih!`);
             const waHref = c && c.phone ? `https://wa.me/${normalizePhone(c.phone)}?text=${waText}` : null;
             const balanceDue = invoiceBalanceDue(inv);

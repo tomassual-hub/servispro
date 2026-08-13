@@ -9,7 +9,11 @@ function viewReports(){
   const canRevenue = canSeeRevenue();
   const now = Date.now();
   const rangeMs = state.reportRange*24*3600*1000;
-  const invInRange = db.invoices.filter(i=>now-i.createdAt<=rangeMs);
+  // !i.draft -- an invoice auto-created empty when a job is sent to POS
+  // (see job-to-pos in event-handlers.js) isn't a real sale until it's
+  // actually finalized at checkout; excluded from every figure below
+  // since invInRange feeds essentially the whole report.
+  const invInRange = db.invoices.filter(i=>!i.draft && now-i.createdAt<=rangeMs);
   const totalSales = invInRange.reduce((s,i)=>s+i.total,0);
   const avgTicket = invInRange.length ? totalSales/invInRange.length : 0;
   const jobsInRange = db.jobs.filter(j=>now-j.createdAt<=rangeMs);
@@ -204,7 +208,7 @@ function viewReports(){
   </div>` : ''}
 
   ${canRevenue ? (()=>{
-    const recentInvoices = [...db.invoices].sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
+    const recentInvoices = db.invoices.filter(i=>!i.draft).sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
     return `
     <div class="panel" style="margin-bottom:20px;">
       <h2>${tt('Invois Terkini')}</h2>

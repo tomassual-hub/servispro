@@ -105,6 +105,7 @@ interface Invoice {
   createdBy?: string;
   branchId?: string;
   invoiceToken?: string; // set client-side when "Share Receipt" is first clicked -- see kiosk_get_invoice in backend/schema.sql
+  draft?: boolean; // auto-created empty when a job is sent to POS (job-to-pos in event-handlers.js), cleared once checkout finalizes it -- excluded from every sales/commission stat until then
 }
 
 // A credit note reduces what a customer owes/paid on a specific invoice

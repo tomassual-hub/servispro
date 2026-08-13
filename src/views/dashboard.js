@@ -4,7 +4,11 @@ function viewDashboard(){
   const todayStart = new Date(); todayStart.setHours(0,0,0,0);
   const todayStr = localDateStr();
   const branchFilter = rec => state.currentBranch==='all' || rec.branchId===state.currentBranch || (!rec.branchId && state.currentBranch==='main');
-  const todaysInvoices = db.invoices.filter(inv=>inv.createdAt>=todayStart.getTime() && branchFilter(inv));
+  // "!inv.draft" everywhere in this file -- an invoice auto-created empty
+  // when a job is sent to POS (see job-to-pos in event-handlers.js) isn't
+  // a real sale yet, and shouldn't count toward today's sales/unit stats
+  // or target progress until it's actually finalized at checkout.
+  const todaysInvoices = db.invoices.filter(inv=>!inv.draft && inv.createdAt>=todayStart.getTime() && branchFilter(inv));
   const todaySales = todaysInvoices.reduce((s,i)=>s+i.total,0);
   const activeJobs = db.jobs.filter(j=>j.status!=='delivered' && branchFilter(j));
   const lowStock = db.inventory.filter(i=>i.qty<=i.lowStock);
@@ -47,6 +51,7 @@ function viewDashboard(){
     const period = state.dashTargetPeriod || 'weekly';
     const monthKey = currentMonthStr();
     const monthInvoices = db.invoices.filter(inv=>{
+      if(inv.draft) return false;
       const d = new Date(inv.createdAt);
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`===monthKey;
     });
@@ -55,7 +60,7 @@ function viewDashboard(){
     const now = new Date();
     const weekStart = new Date(now); weekStart.setHours(0,0,0,0);
     weekStart.setDate(weekStart.getDate() - ((weekStart.getDay()+6)%7));
-    const weekInvoices = db.invoices.filter(inv=>inv.createdAt>=weekStart.getTime());
+    const weekInvoices = db.invoices.filter(inv=>!inv.draft && inv.createdAt>=weekStart.getTime());
     const monthSalesTarget = db.settings.monthlySalesTarget||0;
     const monthUnitTarget = db.settings.monthlyUnitTarget||0;
     // A calendar month averages ~4.345 weeks -- prorated, not a separately

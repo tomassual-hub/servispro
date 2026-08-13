@@ -1323,7 +1323,7 @@ function attachHandlers(){
   });
   bindAction('export-csv-invoices', ()=>downloadCSV('invois.csv',
     ['No. Invois','Pelanggan','Tarikh','Bayaran','Subjumlah','Diskaun','Cukai','Jumlah'],
-    db.invoices.map(inv=>{
+    db.invoices.filter(inv=>!inv.draft).map(inv=>{
       const c=getCustomer(inv.customerId);
       return [inv.invoiceNo, c?c.name:'Walk-in', fmtDateTime(inv.createdAt), inv.payment, inv.subtotal, inv.discount||0, inv.tax||0, inv.total];
     })));
@@ -1335,7 +1335,7 @@ function attachHandlers(){
     db.customers.map(c=>[c.name,c.phone||''])));
   bindAction('export-csv-accounting', ()=>downloadCSV('rekod-perakaunan.csv',
     ['Tarikh','Rujukan','Penerangan','Debit (Tunai/Belanja)','Kredit (Jualan)','Cukai SST'],
-    db.invoices.map(inv=>{
+    db.invoices.filter(inv=>!inv.draft).map(inv=>{
       const c = getCustomer(inv.customerId);
       const desc = 'Jualan - '+(c?c.name:'Walk-in')+' ('+inv.items.map(it=>it.name).join('; ')+')';
       return [localDateStr(new Date(inv.createdAt)), inv.invoiceNo, desc, 0, inv.total, inv.tax||0];
@@ -1549,15 +1549,49 @@ function attachHandlers(){
       showToast(en ? 'Could not create the return job. Try again.' : 'Gagal cipta kad kerja pemulangan. Cuba lagi.');
     }
   });
-  bindAllAction('job-to-pos', el=>{
+  bindAllAction('job-to-pos', async el=>{
+    const en = state.language==='en';
     const job = db.jobs.find(j=>j.id===el.dataset.id);
+    // Jumping straight to a different job's invoice while a still-empty
+    // draft from a PREVIOUS "Hantar ke POS" is sitting untouched -- drop
+    // that one rather than leaving it behind every time this happens.
+    // Only ever touches a draft with zero items; one that already has
+    // items on it (however it got there) is left alone.
+    if(state.posEditingInvoiceId){
+      const prevDraft = db.invoices.find(i=>i.id===state.posEditingInvoiceId && i.draft);
+      if(prevDraft && prevDraft.items.length===0){
+        db.invoices = db.invoices.filter(i=>i.id!==prevDraft.id);
+      }
+    }
     state.posCustomerId = job.customerId;
     state.posVehicleId = job.vehicleId;
     state.posJobId = job.id;
     state.posCart = [];
     state.aiQuoteSuggestion = null; // fresh each time -- never carry a previous job's suggestion into this one
     setState({modal:null, view:'pos'});
-    showToast(tt('Sedia untuk buat invois bagi ')+job.jobNo);
+    // Auto-generate an empty invoice the moment the job lands in POS,
+    // rather than only creating one once checkout is clicked -- the
+    // mechanic edits THIS invoice's cart (add/remove items as usual) and
+    // checkout finalizes it in place. "draft:true" keeps it out of every
+    // sales/commission stat (see dashboard.js/reports.js/payroll.js) until
+    // it's actually finalized -- an empty draft isn't a real sale yet.
+    try{
+      const invoiceNo = await nextInvNo();
+      const draft = {
+        id: uid(), invoiceNo, customerId: job.customerId||null, vehicleId: job.vehicleId||null, jobId: job.id,
+        items: [], subtotal: 0, discount: 0, taxRate: Number(db.settings.taxRate)||0, tax: 0, total: 0,
+        payment: 'Tunai', draft: true, createdAt: Date.now(),
+        createdBy: state.currentStaff ? state.currentStaff.name : '',
+      };
+      db.invoices.push(draft);
+      queueSave();
+      state.posEditingInvoiceId = draft.id;
+      render();
+      showToast(en?`Invoice ${invoiceNo} started — add items and save.`:`Invois ${invoiceNo} dijana — tambah item dan simpan.`);
+    }catch(e){
+      reportError(e, 'Jana invois draf gagal');
+      showToast(tt('Sedia untuk buat invois bagi ')+job.jobNo);
+    }
   });
   bindAllAction('ai-suggest-quote-items', ()=>{
     requestAiQuoteSuggestion();
@@ -1814,7 +1848,7 @@ function attachHandlers(){
     if(isNaN(actual)){ showToast(tt('Sila masukkan jumlah tunai.')); return; }
     const todayStart = new Date(); todayStart.setHours(0,0,0,0);
     const dateStr = localDateStr(todayStart);
-    const expected = db.invoices.filter(inv=>inv.createdAt>=todayStart.getTime()).reduce((s,i)=>s+invoiceCashAmount(i),0);
+    const expected = db.invoices.filter(inv=>!inv.draft && inv.createdAt>=todayStart.getTime()).reduce((s,i)=>s+invoiceCashAmount(i),0);
     db.cashClosures.push({id:uid(), date:dateStr, expected, actual, closedBy: state.currentStaff?state.currentStaff.name:'', closedAt:Date.now()});
     logAudit('Tutup Kunci Tunai', dateStr+': jangka '+fmtRM(expected)+' vs sebenar '+fmtRM(actual));
     queueSave();
@@ -1842,6 +1876,13 @@ function attachHandlers(){
       };
       if(!db.quotations) db.quotations = [];
       db.quotations.push(quotation);
+      // A quotation, not an invoice, was decided on -- drop the still-empty
+      // draft invoice this cart may have started from (see job-to-pos)
+      // rather than leaving an abandoned RM0 draft behind.
+      if(state.posEditingInvoiceId){
+        db.invoices = db.invoices.filter(inv=>inv.id!==state.posEditingInvoiceId);
+        state.posEditingInvoiceId = null;
+      }
       logAudit('Jana Sebut Harga', quotation.quoteNo+' — '+fmtRM(quotation.total));
       queueSave();
       state.posCart = []; state.posCustomerId=''; state.posVehicleId=''; state.posDiscountValue=0; state.posDiscountType='flat';
@@ -1876,6 +1917,26 @@ function attachHandlers(){
       db.quotations = (db.quotations||[]).filter(q=>q.id!==el.dataset.id);
       queueSave(); render();
       showToast(en?'Quotation deleted.':'Sebut harga dipadam.');
+    });
+  });
+  bindAllAction('resume-draft-invoice', el=>{
+    const inv = db.invoices.find(i=>i.id===el.dataset.id && i.draft);
+    if(!inv) return;
+    state.posCart = inv.items.map(it=>({...it}));
+    state.posCustomerId = inv.customerId||'';
+    state.posVehicleId = inv.vehicleId||'';
+    state.posJobId = inv.jobId||'';
+    state.posEditingInvoiceId = inv.id;
+    setState({view:'pos'});
+    showToast(tt('Menyambung invois ')+inv.invoiceNo);
+  });
+  bindAllAction('delete-draft-invoice', el=>{
+    const en = state.language==='en';
+    askConfirm(en?'Discard this draft invoice? Its number won\'t be reused.':'Buang draf invois ini? Nombornya tidak akan diguna semula.', ()=>{
+      db.invoices = db.invoices.filter(i=>i.id!==el.dataset.id);
+      if(state.posEditingInvoiceId===el.dataset.id) state.posEditingInvoiceId = null;
+      queueSave(); render();
+      showToast(en?'Draft discarded.':'Draf dibuang.');
     });
   });
   bindAction('checkout', async ()=>{
@@ -1929,18 +1990,36 @@ function attachHandlers(){
       const taxRate = Number(db.settings.taxRate)||0;
       const taxAmt = afterDiscount * taxRate/100;
       const total = afterDiscount + taxAmt;
-      const invoiceNo = await nextInvNo();
       // db.branches is backfilled with a default on every login (see
       // handleAuthenticated), but stay defensive here too rather than
       // crash on db.branches[0].id if it's ever empty when this runs.
       const fallbackBranchId = (db.branches && db.branches[0]) ? db.branches[0].id : 'main';
-      const invoice = {
-        id:uid(), invoiceNo, customerId:state.posCustomerId||null, vehicleId:state.posVehicleId||null,
-        jobId: state.posJobId||null, items:[...state.posCart], subtotal, discount:discountAmt, taxRate, tax:taxAmt, total, payment, createdAt:Date.now(),
-        createdBy: state.currentStaff ? state.currentStaff.name : '', branchId: state.currentBranch!=='all' ? state.currentBranch : fallbackBranchId,
-        ...(payments ? {payments} : {}),
-      };
-      db.invoices.push(invoice);
+      // If this cart started from an auto-generated draft (see job-to-pos),
+      // finalize that SAME invoice in place -- same id/invoiceNo, no
+      // second invoice created alongside the now-filled-in draft, and no
+      // extra nextInvNo() round-trip since the number was already reserved
+      // when the draft was created.
+      const editingDraft = state.posEditingInvoiceId ? db.invoices.find(i=>i.id===state.posEditingInvoiceId) : null;
+      let invoice;
+      if(editingDraft){
+        Object.assign(editingDraft, {
+          customerId:state.posCustomerId||null, vehicleId:state.posVehicleId||null, jobId: state.posJobId||null,
+          items:[...state.posCart], subtotal, discount:discountAmt, taxRate, tax:taxAmt, total, payment, createdAt:Date.now(),
+          createdBy: state.currentStaff ? state.currentStaff.name : '', branchId: state.currentBranch!=='all' ? state.currentBranch : fallbackBranchId,
+          ...(payments ? {payments} : {}),
+        });
+        delete editingDraft.draft;
+        invoice = editingDraft;
+      } else {
+        const invoiceNo = await nextInvNo();
+        invoice = {
+          id:uid(), invoiceNo, customerId:state.posCustomerId||null, vehicleId:state.posVehicleId||null,
+          jobId: state.posJobId||null, items:[...state.posCart], subtotal, discount:discountAmt, taxRate, tax:taxAmt, total, payment, createdAt:Date.now(),
+          createdBy: state.currentStaff ? state.currentStaff.name : '', branchId: state.currentBranch!=='all' ? state.currentBranch : fallbackBranchId,
+          ...(payments ? {payments} : {}),
+        };
+        db.invoices.push(invoice);
+      }
       const amountPaid = invoiceAmountPaid(invoice);
       const balanceNote = amountPaid<total-0.004 ? ' — '+(en?'balance due':'baki tertunggak')+' '+fmtRM(total-amountPaid) : '';
       logAudit('Jana Invois', invoice.invoiceNo+' — '+fmtRM(invoice.total)+balanceNote);
@@ -1961,7 +2040,7 @@ function attachHandlers(){
       }
       queueSave();
       state.posCart = []; state.posCustomerId=''; state.posVehicleId=''; state.posJobId=''; state.posDiscountValue=0; state.posDiscountType='flat';
-      state.posSplitMode = false; state.posSplitPayments = []; state.posConvertingQuoteId = null;
+      state.posSplitMode = false; state.posSplitPayments = []; state.posConvertingQuoteId = null; state.posEditingInvoiceId = null;
       render();
       showToast(tt('Invois ')+invoice.invoiceNo+tt(' berjaya dijana!'));
     }catch(e){
