@@ -478,6 +478,8 @@ declare const ICONS: Record<string, string>;
 declare const LOGO_DATA_URI: string;
 declare const SERVISPRO_LOGO_DATA_URI: string;
 declare const WORKSHOP_ILLUSTRATION_DATA_URI: string;
+declare const AI_AVATAR_HEAD_DATA_URI: string;
+declare const AI_AVATAR_FULL_DATA_URI: string;
 declare const supabaseClient: any;
 declare const SUPABASE_URL: string;
 declare const SUPABASE_ANON_KEY: string;

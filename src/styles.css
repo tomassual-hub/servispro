@@ -385,13 +385,21 @@ body::before{
   .mobile-tab-badge{position:absolute;top:1px;right:16%;background:var(--danger);color:#fff;font-size:9px;font-weight:700;border-radius:20px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;box-shadow:0 0 0 2px var(--glass-2);}
   .mobile-tab-item.active .mobile-tab-badge{box-shadow:0 0 0 2px var(--accent);}
 
+  /* Anchored to the bottom nav bar's own top-right corner (a reference app
+     the user pointed to sits its AI button astride the nav bar, bleeding
+     slightly past the screen edge, with a bold accent ring -- not floating
+     free in the gap above it the way this button used to). z-index above
+     .mobile-tabbar's 45 so it draws on top where the two overlap, instead
+     of getting clipped behind the bar. */
   .mobile-ai-bubble{
-    display:flex;align-items:center;justify-content:center;
-    position:fixed;right:16px;bottom:calc(100px + env(safe-area-inset-bottom));z-index:44;
-    width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    position:fixed;right:2px;bottom:calc(48px + env(safe-area-inset-bottom));z-index:46;
+    width:58px;height:58px;border-radius:50%;cursor:pointer;padding:0;
+    border:3px solid var(--accent);
     background:linear-gradient(135deg, var(--accent), var(--accent-2));color:var(--accent-ink);
-    box-shadow:0 10px 26px -8px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,.3);
+    box-shadow:0 10px 26px -6px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.25);
   }
+  .mobile-ai-bubble img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
   .mobile-ai-bubble:active{transform:scale(.94);}
 
   .user-name,.user-role{display:none;}
@@ -703,33 +711,28 @@ tr:hover td{background:var(--glass-highlight);}
 .support-msg-theirs{align-self:flex-start;background:var(--glass-2);border:1px solid var(--glass-border);border-bottom-left-radius:4px;}
 .support-msg-meta{font-size:10px;opacity:.65;margin-top:3px;}
 
-/* AI Assistant gets its own distinct blue/purple theme (vs. the plain dark
-   support-chat-modal it shares markup structure with) -- deliberately
-   scoped to .ai-assistant-modal only, everywhere else in the app stays on
-   the usual orange/dark ServisPro theme. Signals "this is the AI-powered
-   part" rather than reading as an inconsistent skin, the way a dedicated
-   color for AI features does in a lot of apps. */
-.modal.ai-assistant-modal{background:linear-gradient(165deg, #362a99 0%, #1c1550 55%, #120d38 100%);border-color:rgba(138,123,240,.35);}
-.ai-assistant-modal .support-chat-head{border-bottom-color:rgba(255,255,255,.12);}
-.ai-assistant-modal .support-chat-head h2{color:#fff;}
-.ai-assistant-modal .btn-icon{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.18);}
-.ai-assistant-modal .btn-icon:hover{background:rgba(255,255,255,.2);color:#fff;}
-.ai-assistant-head-avatar{width:34px;height:34px;flex-shrink:0;}
-.ai-assistant-head-avatar svg{width:100%;height:100%;display:block;}
-.ai-assistant-empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:14px 6px 6px;gap:10px;}
-.ai-assistant-mascot{width:104px;height:104px;flex-shrink:0;}
-.ai-assistant-mascot svg{width:100%;height:100%;display:block;}
-.ai-assistant-greeting{font-size:18px;font-weight:700;color:#fff;margin-top:2px;}
-.ai-assistant-subtitle{font-size:12.5px;color:rgba(255,255,255,.68);max-width:320px;line-height:1.5;}
+/* AI Assistant uses the same orange/dark theme as the rest of the app --
+   no color overrides needed here, .ai-assistant-modal inherits the plain
+   .modal.support-chat-modal look. Just layout/sizing for the two real
+   avatar images (see ai-avatar-head-data.js/ai-avatar-full-data.js) and
+   the empty-state chips/disclaimer.
+
+   Both spots use the SAME full-body source image -- the header one crops
+   into just the head/shoulders via object-position (a tiny 34px circle
+   can't show a whole standing figure legibly), the empty-state one shows
+   the whole thing via object-fit:contain. */
+.ai-assistant-head-avatar{width:34px;height:34px;flex-shrink:0;border-radius:50%;overflow:hidden;background:var(--glass-2);}
+.ai-assistant-head-avatar img{width:100%;height:100%;object-fit:cover;object-position:center 8%;display:block;}
+.ai-assistant-empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 6px 6px;gap:10px;}
+.ai-assistant-mascot{height:168px;flex-shrink:0;}
+.ai-assistant-mascot img{height:100%;width:auto;display:block;object-fit:contain;}
+.ai-assistant-greeting{font-size:18px;font-weight:700;color:var(--text);margin-top:2px;}
+.ai-assistant-subtitle{font-size:12.5px;color:var(--text-muted);max-width:320px;line-height:1.5;}
 .ai-assistant-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px;}
-.ai-assistant-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;cursor:pointer;transition:background .15s;}
-.ai-assistant-chip:hover{background:rgba(255,255,255,.2);}
-.ai-assistant-modal .support-msg-theirs{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff;}
+.ai-assistant-chip{background:var(--glass-2);border:1px solid var(--glass-border);color:var(--text);padding:8px 14px;border-radius:20px;font-size:12px;cursor:pointer;transition:background .15s, border-color .15s;}
+.ai-assistant-chip:hover{background:var(--glass-1);border-color:var(--accent);color:var(--accent);}
 .ai-assistant-input-wrap{display:flex;flex-direction:column;flex-shrink:0;}
-.ai-assistant-modal .support-chat-input-row{border-top-color:rgba(255,255,255,.14);}
-.ai-assistant-modal .support-chat-input-row input{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#fff;}
-.ai-assistant-modal .support-chat-input-row input::placeholder{color:rgba(255,255,255,.5);}
-.ai-assistant-disclaimer{font-size:10.5px;color:rgba(255,255,255,.42);text-align:center;padding:2px 16px 12px;}
+.ai-assistant-disclaimer{font-size:10.5px;color:var(--text-muted);opacity:.75;text-align:center;padding:2px 16px 12px;}
 .support-inbox-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--border);cursor:pointer;}
 .support-inbox-row:last-child{border-bottom:none;}
 

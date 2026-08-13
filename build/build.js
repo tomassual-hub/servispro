@@ -30,6 +30,8 @@ const FILE_ORDER = [
   'logo-data.js',
   'servispro-logo-data.js',
   'workshop-illustration-data.js',
+  'ai-avatar-head-data.js',
+  'ai-avatar-full-data.js',
   'face-id.js', // before sync-engine.js: initApp()/handleAuthenticated() call its functions
   'sync-engine.js',
   'license.js',

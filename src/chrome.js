@@ -157,7 +157,7 @@ function renderMobileAiBubble(){
   const en = state.language==='en';
   return `
   <button class="mobile-ai-bubble" data-action="open-ai-assistant" title="${en?'AI Assistant':'Pembantu AI'}">
-    ${ICONS.sparkle}
+    <img src="${AI_AVATAR_HEAD_DATA_URI}" alt="" width="102" height="101">
   </button>`;
 }
 
