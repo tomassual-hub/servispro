@@ -115,7 +115,7 @@ async function sendAiAssistantMessage(text){
       state.aiAssistantMessages.push({ role:'ai', text: data.reply });
     }
   }catch(e){
-    reportError(e, 'Gagal hubungi Pembantu AI');
+    reportError(e, 'Gagal hubungi Mekanik AI');
     state.aiAssistantMessages.push({ role:'ai', text: tt('Maaf, tidak dapat jawab buat masa ini. Cuba lagi sebentar lagi.') });
   }
   state.aiAssistantBusy = false;
@@ -141,9 +141,9 @@ function aiAssistantModalHTML(){
   const quickQuestions = en ? AI_QUICK_QUESTIONS_EN : AI_QUICK_QUESTIONS_MS;
   return `
   <div class="support-chat-head">
+    <button class="btn-icon" data-action="close-modal">${ICONS.chevronLeft}</button>
     <div class="ai-assistant-head-avatar"><img src="${AI_AVATAR_FULL_DATA_URI}" alt=""></div>
-    <h2 style="margin:0;flex:1;">${en?'AI Assistant':'Pembantu AI'}</h2>
-    <button class="btn-icon" data-action="close-modal">${ICONS.x}</button>
+    <h2 style="margin:0;flex:1;">${en?'Mechanic AI':'Mekanik AI'}</h2>
   </div>
   <div class="support-chat-messages" id="ai-assistant-messages">
     ${messages.length===0 ? `
@@ -161,10 +161,10 @@ function aiAssistantModalHTML(){
   </div>
   <div class="ai-assistant-input-wrap">
     <div class="support-chat-input-row">
-      <input id="ai-assistant-input" placeholder="${en?'Ask AI Assistant anything…':'Tanya Pembantu AI apa-apa sahaja…'}" autocomplete="off" ${state.aiAssistantBusy?'disabled':''}>
+      <input id="ai-assistant-input" placeholder="${en?'Ask Mechanic AI anything…':'Tanya Mekanik AI apa-apa sahaja…'}" autocomplete="off" ${state.aiAssistantBusy?'disabled':''}>
       <button class="btn btn-primary" data-action="send-ai-assistant-message" ${state.aiAssistantBusy?'disabled':''}>${ICONS.sparkle}</button>
     </div>
-    <div class="ai-assistant-disclaimer">${en?'AI Assistant can make mistakes. Verify important information before relying on it.':'Pembantu AI boleh membuat kesilapan. Sahkan maklumat penting sebelum bergantung padanya.'}</div>
+    <div class="ai-assistant-disclaimer">${en?'Mechanic AI can make mistakes. Verify important information before relying on it.':'Mekanik AI boleh membuat kesilapan. Sahkan maklumat penting sebelum bergantung padanya.'}</div>
   </div>
   `;
 }

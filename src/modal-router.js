@@ -40,7 +40,7 @@ function renderModal(){
   else if(m.type==='techref-detail') inner = techRefDetailModalHTML(m.entry);
   else if(m.type==='plan-picker') inner = planPickerModalHTML();
   else if(m.type==='support-chat') return `<div class="modal-overlay" data-action="overlay-close"><div class="modal support-chat-modal" onclick="event.stopPropagation()">${renderSupportChatModal()}</div></div>`;
-  else if(m.type==='ai-assistant') return `<div class="modal-overlay" data-action="overlay-close"><div class="modal support-chat-modal ai-assistant-modal" onclick="event.stopPropagation()">${aiAssistantModalHTML()}</div></div>`;
+  else if(m.type==='ai-assistant') return `<div class="modal-overlay ai-assistant-overlay" data-action="overlay-close"><div class="modal support-chat-modal ai-assistant-modal" onclick="event.stopPropagation()">${aiAssistantModalHTML()}</div></div>`;
   return `<div class="modal-overlay" data-action="overlay-close"><div class="modal" onclick="event.stopPropagation()">${inner}</div></div>`;
 }
 

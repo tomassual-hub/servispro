@@ -395,13 +395,13 @@ body::before{
      ~10px gap above that regardless of device safe-area inset. */
   .mobile-ai-bubble{
     display:flex;align-items:center;justify-content:center;overflow:hidden;
-    position:fixed;right:2px;bottom:calc(99px + env(safe-area-inset-bottom));z-index:44;
-    width:58px;height:58px;border-radius:50%;cursor:pointer;padding:0;
-    border:3px solid var(--accent);
+    position:fixed;right:2px;bottom:calc(130px + env(safe-area-inset-bottom));z-index:44;
+    width:66px;height:66px;border-radius:50%;cursor:pointer;padding:0;
+    border:4px solid var(--accent);
     background:linear-gradient(135deg, var(--accent), var(--accent-2));color:var(--accent-ink);
     box-shadow:0 10px 26px -6px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.25);
   }
-  .mobile-ai-bubble img{width:100%;height:100%;object-fit:cover;object-position:center 30%;}
+  .mobile-ai-bubble img{width:100%;height:100%;object-fit:cover;object-position:center 12%;}
   .mobile-ai-bubble:active{transform:scale(.94);}
 
   .user-name,.user-role{display:none;}
@@ -734,6 +734,24 @@ tr:hover td{background:var(--glass-highlight);}
 .ai-assistant-chip{background:var(--glass-2);border:1px solid var(--glass-border);color:var(--text);padding:8px 14px;border-radius:20px;font-size:12px;cursor:pointer;transition:background .15s, border-color .15s;}
 .ai-assistant-chip:hover{background:var(--glass-1);border-color:var(--accent);color:var(--accent);}
 .ai-assistant-input-wrap{display:flex;flex-direction:column;flex-shrink:0;}
+
+/* Full-screen instead of a centered/bottom-sheet modal, per a reference
+   app's own "Mechanic AI" screen the user pointed to -- edge to edge, no
+   backdrop dimming, no rounded corners, a back chevron instead of a close
+   X. Everything else about aiAssistantModalHTML() (header/messages/input
+   structure) is unchanged; this only overrides how the CONTAINER sits on
+   screen. dvh declared after vh so it wins where supported but still
+   works (via the vh fallback) where it isn't. */
+.modal-overlay.ai-assistant-overlay{
+  padding:0;align-items:stretch;justify-content:stretch;
+  background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+.modal-overlay.ai-assistant-overlay .modal.ai-assistant-modal{
+  max-width:none;width:100%;height:100vh;height:100dvh;max-height:none;
+  border-radius:0;border:none;margin:0;animation:none;
+}
+.ai-assistant-modal .support-chat-head{padding-top:calc(18px + env(safe-area-inset-top));}
+.ai-assistant-modal .support-chat-input-row{padding-bottom:calc(12px + env(safe-area-inset-bottom));}
 .ai-assistant-disclaimer{font-size:10.5px;color:var(--text-muted);opacity:.75;text-align:center;padding:2px 16px 12px;}
 .support-inbox-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--border);cursor:pointer;}
 .support-inbox-row:last-child{border-bottom:none;}
