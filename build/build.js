@@ -58,6 +58,7 @@ const FILE_ORDER = [
   'views/dashboard.js',
   'views/jobs.js',
   'views/inventory.js',
+  'views/finance.js',
   'views/customers.js',
   'views/techref.js',
   'views/pos.js',

@@ -125,7 +125,7 @@ async function run(){
   // P&L revenue/gross profit AND mechanic commission by the credited amount
   // -- COGS stays put (the part was genuinely consumed regardless of the
   // refund). This is the exact bug class fixed via creditNotesForInvoice().
-  await page.evaluate(() => setState({ view: 'pos' }));
+  await page.evaluate(() => setState({ view: 'finance', financeTab: 'invoices' }));
   await page.waitForTimeout(200);
   await clickInPage(page, `[data-action="open-credit-note"][data-id="${invoice.id}"]`);
   await page.waitForTimeout(300);

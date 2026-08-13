@@ -79,54 +79,6 @@ function viewInventory(){
   </div>`}
   `;
 
-  const poTabHTML = `
-  <div class="section-head">
-    <div><div class="sub">${tt('Pesanan belian untuk isi semula stok')}</div></div>
-    <button class="btn btn-primary" data-action="new-po">${ICONS.plus} ${tt('Pesanan Baharu')}</button>
-  </div>
-  ${lowCount>0 ? `<div class="panel" style="margin-bottom:16px;background:rgba(242,167,59,.1);border-color:var(--accent);">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-      <div style="font-size:13px;">${ICONS.alert} ${lowCount} ${tt('item stok rendah — jana pesanan belian automatik?')}</div>
-      <button class="btn btn-outline btn-sm" data-action="auto-po">${tt('Jana Pesanan Auto')}</button>
-    </div>
-  </div>` : ''}
-  ${db.purchaseOrders.length===0 ? emptyState(tt('Tiada pesanan belian.')) : (()=>{
-    const sortedPOs = [...db.purchaseOrders].sort((a,b)=>b.createdAt-a.createdAt);
-    const shownPOs = sortedPOs.slice(0, state.poShowCount||30);
-    return `
-  <div class="panel">
-    <div class="table-wrap"><table>
-      <thead><tr><th>${tt('No. PO')}</th><th>${tt('Pembekal')}</th><th>${tt('Item')}</th><th>${tt('Jumlah')}</th><th>${tt('Status')}</th><th></th></tr></thead>
-      <tbody>
-        ${shownPOs.map(po=>{
-          const sup = db.suppliers.find(s=>s.id===po.supplierId);
-          const total = po.items.reduce((s,i)=>s+i.cost*i.qty,0);
-          const poLines = po.items.map(i=>`- ${i.name} x${i.qty} (${fmtRM(i.cost)}/unit)`).join('\n');
-          const poMsg = `Salam ${sup?sup.name:''}, berikut Pesanan Belian ${po.poNo} daripada ${db.settings.shopName}:\n\n${poLines}\n\nJumlah: ${fmtRM(total)}\n\nSila sahkan penerimaan pesanan ini. Terima kasih!`;
-          const waHref = sup && sup.phone ? `https://wa.me/${normalizePhone(sup.phone)}?text=${encodeURIComponent(poMsg)}` : null;
-          const mailHref = sup && sup.email ? `mailto:${encodeURIComponent(sup.email)}?subject=${encodeURIComponent('Pesanan Belian '+po.poNo+' — '+db.settings.shopName)}&body=${encodeURIComponent(poMsg)}` : null;
-          return `<tr>
-            <td style="font-family:'IBM Plex Mono',monospace;">${po.poNo}</td>
-            <td>${sup?sup.name:'-'}</td>
-            <td style="font-size:12px;color:var(--text-muted);">${po.items.map(i=>esc(i.name)+' ×'+i.qty).join(', ')}</td>
-            <td style="color:var(--accent);font-weight:600;">${fmtRM(total)}</td>
-            <td><span class="pill ${po.status==='received'?'pill-done':po.status==='partial'?'pill-progress':'pill-wait'}">${po.status==='received'?tt('Diterima'):po.status==='partial'?(state.language==='en'?'Partially Received':'Diterima Sebahagian'):tt('Belum Diterima')}</span></td>
-            <td style="white-space:nowrap;">
-              ${waHref ? `<a class="btn-icon" href="${waHref}" target="_blank" rel="noopener" title="${state.language==='en'?'Send PO via WhatsApp':'Hantar PO via WhatsApp'}" style="display:inline-flex;">${ICONS.whatsapp}</a>` : ''}
-              ${mailHref ? `<a class="btn-icon" href="${mailHref}" title="${state.language==='en'?'Send PO via Email':'Hantar PO via E-mel'}" style="display:inline-flex;">${ICONS.mail}</a>` : ''}
-              ${po.status!=='received' ? `<button class="btn-icon" data-action="open-receive-po" data-id="${po.id}" title="${state.language==='en'?'Receive stock (full or partial)':'Terima stok (penuh atau sebahagian)'}">${ICONS.download}</button>` : ''}
-            </td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table></div>
-    ${sortedPOs.length > shownPOs.length ? `<div style="text-align:center;margin-top:18px;">
-      <button class="btn btn-outline" data-action="load-more-po">${state.language==='en'?'Load More':'Muat Lagi'} (${shownPOs.length}/${sortedPOs.length})</button>
-    </div>` : ''}
-  </div>`;
-  })()}
-  `;
-
   const requisitionTabHTML = `
   <div class="section-head">
     <div><div class="sub">${state.language==='en'?'All low-stock parts in one place, grouped by supplier, with a suggested reorder quantity for each.':'Semua alat ganti stok rendah di satu tempat, ikut pembekal, dengan cadangan kuantiti pesanan semula.'}</div></div>
@@ -189,10 +141,9 @@ function viewInventory(){
     <div class="tab-btn ${tab==='items'?'active':''}" data-invmaintab="items">${ICONS.inventory} ${tt('Item')}</div>
     <div class="tab-btn ${tab==='suppliers'?'active':''}" data-invmaintab="suppliers">${ICONS.staff} ${tt('Pembekal')}</div>
     <div class="tab-btn ${tab==='packages'?'active':''}" data-invmaintab="packages">${ICONS.wallet} ${state.language==='en'?'Packages':'Pakej'}</div>
-    <div class="tab-btn ${tab==='po'?'active':''}" data-invmaintab="po">${ICONS.repeat} ${tt('Pesanan Belian')}</div>
     <div class="tab-btn ${tab==='requisition'?'active':''}" data-invmaintab="requisition">${ICONS.alert} ${state.language==='en'?'Reorder Suggestions':'Cadangan Pesanan Semula'}${lowCount>0?` <span class="nav-badge" style="background:var(--danger);color:#fff;">${lowCount}</span>`:''}</div>
   </div>`}
-  ${db.settings.simpleMode ? itemsTabHTML : (tab==='items' ? itemsTabHTML : tab==='suppliers' ? suppliersTabHTML : tab==='packages' ? packagesTabHTML : tab==='requisition' ? requisitionTabHTML : poTabHTML)}
+  ${db.settings.simpleMode ? itemsTabHTML : (tab==='items' ? itemsTabHTML : tab==='suppliers' ? suppliersTabHTML : tab==='packages' ? packagesTabHTML : requisitionTabHTML)}
   `;
 }
 

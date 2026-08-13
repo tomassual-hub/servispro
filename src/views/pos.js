@@ -207,65 +207,6 @@ function viewPOS(){
   </div>
 
   ${isAdmin ? `
-  <div class="panel" style="margin-top:20px;">
-    <h2>${tt('Sejarah Invois')} <span class="tag">${db.invoices.length}</span></h2>
-    ${db.invoices.length===0 ? emptyState(tt('Belum ada invois dikeluarkan.')) : `
-    <div class="table-wrap"><table>
-      <thead><tr><th>${tt('No. Invois')}</th><th>${tt('Pelanggan')}</th><th>${tt('Tarikh')}</th><th>${tt('Bayaran')}</th><th>${tt('Jumlah')}</th><th>${state.language==='en'?'Balance':'Baki'}</th><th></th></tr></thead>
-      <tbody>
-        ${[...db.invoices].sort((a,b)=>b.createdAt-a.createdAt).slice(0,10).map(inv=>{
-          const c = getCustomer(inv.customerId);
-          const waText = encodeURIComponent(`Salam ${c?c.name:''}, berikut invois ${inv.invoiceNo} bernilai ${fmtRM(inv.total)} daripada ${db.settings.shopName}. Terima kasih!`);
-          const waHref = c && c.phone ? `https://wa.me/${normalizePhone(c.phone)}?text=${waText}` : null;
-          const balanceDue = invoiceBalanceDue(inv);
-          return `<tr>
-            <td style="font-family:'IBM Plex Mono',monospace;">${inv.invoiceNo}</td>
-            <td>${c?esc(c.name):tt('Walk-in')}</td>
-            <td>${fmtDateTime(inv.createdAt)}</td>
-            <td>${inv.payment}</td>
-            <td style="color:var(--accent);font-weight:600;">${fmtRM(inv.total)}</td>
-            <td>${balanceDue>0.004 ? `<span class="pill pill-low">${fmtRM(balanceDue)}</span>` : `<span class="pill pill-done">${state.language==='en'?'Paid':'Selesai'}</span>`}</td>
-            <td style="white-space:nowrap;">
-              ${balanceDue>0.004 ? `<button class="btn-icon" data-action="settle-invoice-balance" data-id="${inv.id}" title="${state.language==='en'?'Record balance payment':'Rekod bayaran baki'}">${ICONS.wallet}</button>` : ''}
-              ${!db.settings.simpleMode ? `<button class="btn-icon" data-action="open-credit-note" data-id="${inv.id}" title="${state.language==='en'?'Issue Credit Note':'Keluarkan Nota Kredit'}">${ICONS.repeat}</button>` : ''}
-              <button class="btn-icon" data-action="print-invoice" data-id="${inv.id}" title="${state.language==='en'?'Print invoice':'Cetak invois'}">${ICONS.printer}</button>
-              <button class="btn-icon" data-action="share-invoice-receipt" data-id="${inv.id}" title="${state.language==='en'?'Share receipt link':'Kongsi pautan resit'}">${ICONS.share||ICONS.whatsapp}</button>
-              ${waHref ? `<a class="btn-icon" href="${waHref}" target="_blank" rel="noopener" title="${state.language==='en'?'Send via WhatsApp':'Hantar via WhatsApp'}" style="display:inline-flex;">${ICONS.whatsapp}</a>` : ''}
-            </td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table></div>`}
-  </div>
-
-  ${!db.settings.simpleMode && (db.quotations||[]).length>0 ? `
-  <div class="panel" style="margin-top:20px;">
-    <h2>${ICONS.printer} ${state.language==='en'?'Quotations':'Sebut Harga'} <span class="tag">${db.quotations.length}</span></h2>
-    <div class="table-wrap"><table>
-      <thead><tr><th>${state.language==='en'?'No.':'No.'}</th><th>${tt('Pelanggan')}</th><th>${tt('Tarikh')}</th><th>${tt('Jumlah')}</th><th>${tt('Status')}</th><th></th></tr></thead>
-      <tbody>
-        ${[...db.quotations].sort((a,b)=>b.createdAt-a.createdAt).slice(0,10).map(q=>{
-          const cust = getCustomer(q.customerId);
-          const statusLabel = {draft:state.language==='en'?'Draft':'Draf', sent:state.language==='en'?'Sent':'Dihantar', accepted:state.language==='en'?'Accepted':'Diterima', rejected:state.language==='en'?'Rejected':'Ditolak', converted:state.language==='en'?'Converted':'Ditukar', expired:state.language==='en'?'Expired':'Tamat Tempoh'}[q.status];
-          const pillClass = q.status==='converted'||q.status==='accepted' ? 'pill-done' : q.status==='expired'||q.status==='rejected' ? 'pill-low' : 'pill-wait';
-          return `<tr>
-            <td style="font-family:'IBM Plex Mono',monospace;">${q.quoteNo}</td>
-            <td>${cust?esc(cust.name):tt('Walk-in')}</td>
-            <td>${fmtDateTime(q.createdAt)}</td>
-            <td style="color:var(--accent);font-weight:600;">${fmtRM(q.total)}</td>
-            <td><span class="pill ${pillClass}">${statusLabel}</span></td>
-            <td style="white-space:nowrap;">
-              ${q.status==='draft'||q.status==='sent' ? `<button class="btn-icon" data-action="share-quotation-approval" data-id="${q.id}" title="${state.language==='en'?'Share for Approval':'Kongsi untuk Kelulusan'}">${ICONS.share||ICONS.whatsapp}</button>` : ''}
-              ${q.status!=='converted' ? `<button class="btn-icon" data-action="convert-quote-to-invoice" data-id="${q.id}" title="${state.language==='en'?'Convert to Invoice':'Tukar kepada Invois'}">${ICONS.pos}</button>` : ''}
-              <button class="btn-icon" data-action="print-quotation" data-id="${q.id}" title="${state.language==='en'?'Print':'Cetak'}">${ICONS.printer}</button>
-              <button class="btn-icon" data-action="delete-quotation" data-id="${q.id}" title="${state.language==='en'?'Delete quotation':'Padam sebut harga'}">${ICONS.trash}</button>
-            </td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table></div>
-  </div>` : ''}
-
   ${!db.settings.simpleMode && (db.creditNotes||[]).length>0 ? `
   <div class="panel" style="margin-top:20px;">
     <h2>${ICONS.repeat} ${state.language==='en'?'Credit Notes':'Nota Kredit'} <span class="tag">${db.creditNotes.length}</span></h2>

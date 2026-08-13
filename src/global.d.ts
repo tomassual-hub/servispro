@@ -571,6 +571,7 @@ declare function viewPOS(): string;
 declare function settleBalanceModalHTML(invoice: Invoice): string;
 declare function creditNoteModalHTML(invoice: Invoice): string;
 declare function viewInventory(): string;
+declare function viewFinance(): string;
 declare function viewCustomers(): string;
 declare function customersTabHTML(): string;
 declare const LEAD_STAGES: string[];

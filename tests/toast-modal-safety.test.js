@@ -22,7 +22,7 @@ async function run(){
   // Case 1: a toast's ~2.2s auto-dismiss timer firing while a DIFFERENT modal
   // is now open must not reset that modal's already-selected value.
   await page.evaluate(() => showToast('unrelated earlier action'));
-  await page.evaluate(() => setState({ view: 'inventory', invMainTab: 'po', modal: { type: 'new-po' } }));
+  await page.evaluate(() => setState({ view: 'finance', financeTab: 'po', modal: { type: 'new-po' } }));
   await page.waitForTimeout(200);
   await page.selectOption('#po-supplier', supplierId);
   await page.waitForTimeout(2500); // past the 2.2s auto-dismiss window

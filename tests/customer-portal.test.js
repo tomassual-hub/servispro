@@ -80,6 +80,8 @@ async function run(){
   await pageA.waitForTimeout(800);
   const quoteId = await pageA.evaluate(() => [...db.quotations].sort((a,b)=>b.createdAt-a.createdAt)[0]?.id);
   r.checkTrue('quotation created', !!quoteId);
+  await pageA.evaluate(() => setState({ view: 'finance', financeTab: 'quotations' }));
+  await pageA.waitForTimeout(200);
   await clickInPage(pageA, `[data-action="share-quotation-approval"][data-id="${quoteId}"]`);
   await pageA.waitForTimeout(500);
   const quote = await pageA.evaluate((id) => { const q = db.quotations.find(x=>x.id===id); return { token: q?.quoteToken, status: q?.status }; }, quoteId);
@@ -98,7 +100,7 @@ async function run(){
   await pageA.waitForTimeout(500);
   const invoiceId = await pageA.evaluate(() => [...db.invoices].sort((a,b)=>b.createdAt-a.createdAt)[0]?.id);
   r.checkTrue('invoice created', !!invoiceId);
-  await pageA.evaluate(() => setState({ view: 'pos' }));
+  await pageA.evaluate(() => setState({ view: 'finance', financeTab: 'invoices' }));
   await pageA.waitForTimeout(300);
   await clickInPage(pageA, `[data-action="share-invoice-receipt"][data-id="${invoiceId}"]`);
   await pageA.waitForTimeout(500);

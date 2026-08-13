@@ -161,6 +161,8 @@ async function run(){
   // overwrite the settle-balance push below (see helpers.js waitForSyncIdle).
   await waitForSyncIdle(pageA);
 
+  await pageA.evaluate(() => setState({ view: 'finance', financeTab: 'invoices' }));
+  await pageA.waitForTimeout(200);
   await clickInPage(pageA, `[data-action="settle-invoice-balance"][data-id="${splitInvId}"]`);
   await pageA.waitForTimeout(300);
   await pageA.click('[data-action="confirm-settle-balance"]');
@@ -193,7 +195,7 @@ async function run(){
   // silently overwrite the converted status set below.
   await waitForSyncIdle(pageA);
 
-  await pageA.evaluate(() => setState({ view: 'pos' }));
+  await pageA.evaluate(() => setState({ view: 'finance', financeTab: 'quotations' }));
   await pageA.waitForTimeout(200);
   await clickInPage(pageA, `[data-action="convert-quote-to-invoice"][data-id="${quoteId}"]`);
   await pageA.waitForTimeout(300);

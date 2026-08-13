@@ -8,6 +8,7 @@ function getNavItems(){
     {k:'jobs', l:t('nav_jobs'), icon:ICONS.jobs, badge:activeJobs},
     {k:'pos', l:t('nav_pos'), icon:ICONS.pos},
     {k:'inventory', l:t('nav_inventory'), icon:ICONS.inventory, badge:lowStockCount, badgeWarn:true},
+    {k:'finance', l:t('nav_finance'), icon:ICONS.wallet},
     {k:'customers', l:t('nav_customers'), icon:ICONS.customers},
     {k:'techref', l:state.language==='en'?'Tech Reference':'Rujukan Teknikal', icon:ICONS.book},
     {k:'reports', l:t('nav_reports'), icon:ICONS.reports, adminOnly:true},
@@ -317,7 +318,7 @@ function renderSupportChatButton(extraClass){
   </div>`;
 }
 function renderTopbar(){
-  const titles = {dashboard:t('title_dashboard'), jobs:t('title_jobs'), pos:t('title_pos'), inventory:t('title_inventory'), customers:t('title_customers'), reports:t('title_reports'), staffpage:t('title_staffpage'), appointments:t('title_appointments'), settings:t('title_settings'), payroll:t('title_payroll'), techref: state.language==='en'?'Technical Reference':'Rujukan Teknikal', account: state.language==='en'?'Account':'Akaun'};
+  const titles = {dashboard:t('title_dashboard'), jobs:t('title_jobs'), pos:t('title_pos'), inventory:t('title_inventory'), finance:t('title_finance'), customers:t('title_customers'), reports:t('title_reports'), staffpage:t('title_staffpage'), appointments:t('title_appointments'), settings:t('title_settings'), payroll:t('title_payroll'), techref: state.language==='en'?'Technical Reference':'Rujukan Teknikal', account: state.language==='en'?'Account':'Akaun'};
   const en = state.language==='en';
   const s = state.currentStaff;
   const q = state.globalSearch||'';
@@ -474,6 +475,7 @@ function renderView(){
     case 'jobs': return viewJobs();
     case 'pos': return viewPOS();
     case 'inventory': return viewInventory();
+    case 'finance': return viewFinance();
     case 'customers': return viewCustomers();
     case 'techref': return viewTechRef();
     case 'reports': return viewReports();

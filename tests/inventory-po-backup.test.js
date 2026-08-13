@@ -45,7 +45,7 @@ async function run(){
   await page.click('[data-action="save-item"]');
   await page.waitForTimeout(600);
 
-  await page.evaluate(() => setState({ view: 'inventory', invMainTab: 'po' }));
+  await page.evaluate(() => setState({ view: 'finance', financeTab: 'po' }));
   await page.click('[data-action="new-po"]');
   await page.waitForTimeout(300);
   await page.selectOption('#po-supplier', supplierId);

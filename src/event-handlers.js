@@ -24,7 +24,7 @@ function bindGlobalSearchResultHandlers(){
     if(r.action.type==='customer'){ setState({view:'customers'}); }
     else if(r.action.type==='vehicle'){ const vehicle = getVehicle(r.action.id); setState({view:'customers', modal:{type:'vehicle-history', vehicle}}); }
     else if(r.action.type==='job'){ const job = db.jobs.find(j=>j.id===r.action.id); setState({view:'jobs', modal:{type:'job-detail', job}}); }
-    else if(r.action.type==='invoice'){ setState({view:'pos'}); }
+    else if(r.action.type==='invoice'){ setState({view:'finance', financeTab:'invoices'}); }
   }));
 }
 
@@ -78,7 +78,12 @@ function attachHandlers(){
   document.querySelectorAll('[data-invtab]').forEach(el=>el.addEventListener('click', ()=>setState({invTab:el.dataset.invtab, inventoryShowCount:30})));
   document.querySelectorAll('[data-invmaintab]').forEach(el=>el.addEventListener('click', ()=>setState({invMainTab:el.dataset.invmaintab})));
   bindAction('load-more-inventory', ()=>setState({inventoryShowCount:(state.inventoryShowCount||30)+30}));
-  bindAction('load-more-po', ()=>setState({poShowCount:(state.poShowCount||30)+30}));
+  document.querySelectorAll('[data-financetab]').forEach(el=>el.addEventListener('click', ()=>setState({financeTab:el.dataset.financetab, financeStatusFilter:'all', financeShowCount:30})));
+  bindAction('load-more-finance', ()=>setState({financeShowCount:(state.financeShowCount||30)+30}));
+  const financeStatusSel = document.getElementById('finance-status-filter');
+  if(financeStatusSel) financeStatusSel.addEventListener('change', ()=>setState({financeStatusFilter:financeStatusSel.value, financeShowCount:30}));
+  const financeDateSel = document.getElementById('finance-date-filter');
+  if(financeDateSel) financeDateSel.addEventListener('change', ()=>setState({financeDateFilter:financeDateSel.value, financeShowCount:30}));
   const invSearch = document.getElementById('inventory-search');
   if(invSearch){
     invSearch.addEventListener('input', ()=>{
@@ -183,7 +188,7 @@ function attachHandlers(){
       db.purchaseOrders.push(po);
       logAudit('Jana Pesanan Belian', poNo+' ('+items.length+' '+(en?'items':'item')+')');
       queueSave();
-      setState({view:'inventory', invMainTab:'po'});
+      setState({view:'finance', financeTab:'po'});
       showToast(en?`Purchase order ${poNo} created.`:`Pesanan belian ${poNo} dicipta.`);
     }catch(e){
       reportError(e, 'Jana PO daripada cadangan pesanan gagal');
