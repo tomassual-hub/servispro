@@ -40,12 +40,16 @@ async function requestAiSuggestion(job){
    likely need for a job, based on its description + inspection findings
    (items marked "attention"/"replace"). A starting point for building a
    quotation/invoice in POS -- the mechanic still reviews and adjusts the
-   cart by hand exactly as before; this only pre-fills suggestions. Only
-   usable once a job is linked into POS (state.posJobId), since that's
-   where the description/findings come from -- see the "job-to-pos" action
-   in event-handlers.js and the AI button in pos.js. */
+   cart by hand afterward. Only usable once a job is linked into POS
+   (state.posJobId), since that's where the description/findings come from.
+   Two callers: the "job-to-pos" action in event-handlers.js calls this
+   with silent=true right away, pushing any suggested items straight into
+   the cart with no toast if there's nothing to analyze yet; the manual
+   "Cadangan AI" button in pos.js calls it without silent, which instead
+   leaves items sitting in a side panel for the mechanic to Add/Add All by
+   hand -- see renderAiQuoteSuggestionBox() in views/pos.js. */
 
-async function requestAiQuoteSuggestion(){
+async function requestAiQuoteSuggestion(silent){
   const job = db.jobs.find(j=>j.id===state.posJobId);
   if(!job) return;
   const v = getVehicle(job.vehicleId);
@@ -53,7 +57,12 @@ async function requestAiQuoteSuggestion(){
     .filter(([,st])=>st==='attention'||st==='replace')
     .map(([item,status])=>({item, status}));
   if(!(job.description||'').trim() && findings.length===0){
-    showToast(tt('Tiada penerangan kerja atau dapatan pemeriksaan untuk dianalisis.'));
+    // silent=true is the automatic call from job-to-pos (event-handlers.js) --
+    // most jobs have nothing to analyze yet at that point, and a toast on
+    // every single job sent to POS would be noise. The manual "Cadangan AI"
+    // button in pos.js always calls this without silent, so that press still
+    // gets the explanatory toast.
+    if(!silent) showToast(tt('Tiada penerangan kerja atau dapatan pemeriksaan untuk dianalisis.'));
     return;
   }
   state.aiQuoteSuggestion = 'loading';
@@ -72,7 +81,26 @@ async function requestAiQuoteSuggestion(){
       render();
       return;
     }
-    state.aiQuoteSuggestion = { items: data.items||[] };
+    const items = data.items||[];
+    if(silent){
+      // Automatic call from job-to-pos: drop the items straight into the
+      // cart instead of leaving them in the side panel waiting for an
+      // "Add All" click -- guarded on posJobId still matching this job, in
+      // case the mechanic already jumped to a different job's invoice
+      // before this resolved (see the rapid job-to-pos/job-to-pos race
+      // check-draft-ui.js exercises).
+      if(state.posJobId===job.id && items.length){
+        for(const item of items){
+          const invItem = db.inventory.find(i=>i.id===item.id);
+          state.posCart.push({ refId: item.id, name: invItem ? invItem.name : item.name, price: invItem ? invItem.price : 0, qty: item.qty });
+        }
+        showToast(items.length+tt(' item dicadangkan AI ditambah automatik ke troli — semak sebelum jana invois.'));
+      }
+      state.aiQuoteSuggestion = null;
+      render();
+      return;
+    }
+    state.aiQuoteSuggestion = { items };
     render();
   }catch(e){
     reportError(e, 'Gagal dapatkan cadangan sebut harga AI');

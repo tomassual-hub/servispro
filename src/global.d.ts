@@ -708,7 +708,7 @@ declare function clearFaceId(): void;
 declare function maybeOfferFaceIdEnroll(session: any): Promise<void>;
 declare let pendingFaceIdSession: any;
 declare function requestAiSuggestion(job: Job): Promise<void>;
-declare function requestAiQuoteSuggestion(): Promise<void>;
+declare function requestAiQuoteSuggestion(silent?: boolean): Promise<void>;
 declare function renderAiQuoteSuggestionBox(): string;
 declare function voiceInputSupported(): boolean;
 declare function voiceInputBtnHTML(targetId: string, title?: string): string;

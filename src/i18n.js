@@ -184,6 +184,7 @@ const MS_EN = {
   'Sedia untuk buat invois bagi ':'Ready to invoice for ',
   ' berjaya dijana!':' generated successfully!',
   ' ditambah ke troli.':' added to cart.',
+  ' item dicadangkan AI ditambah automatik ke troli — semak sebelum jana invois.':' AI-suggested item(s) added to the cart automatically — review before generating the invoice.',
   'Tiada item dengan kod "':'No item with code "',
   'Fail ':'File ',
   ' dimuat turun.':' downloaded.',

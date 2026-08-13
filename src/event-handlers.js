@@ -1569,6 +1569,13 @@ function attachHandlers(){
     state.posCart = [];
     state.aiQuoteSuggestion = null; // fresh each time -- never carry a previous job's suggestion into this one
     setState({modal:null, view:'pos'});
+    // Auto-run the AI item suggestion right away (silent -- no "nothing to
+    // analyze" toast if the job has no description/findings yet) so the
+    // cart panel already shows suggested parts/services the moment the
+    // mechanic lands in POS, instead of requiring a manual "Cadangan AI"
+    // press every time. Not awaited: this runs alongside the draft invoice
+    // creation below rather than blocking it.
+    requestAiQuoteSuggestion(true);
     // Auto-generate an empty invoice the moment the job lands in POS,
     // rather than only creating one once checkout is clicked -- the
     // mechanic edits THIS invoice's cart (add/remove items as usual) and
