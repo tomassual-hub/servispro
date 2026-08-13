@@ -1558,6 +1558,9 @@ function attachHandlers(){
   bindAllAction('voice-input', el=>{
     startVoiceInput(el.dataset.target, el);
   });
+  bindAllAction('ai-assistant-chip', el=>{
+    sendAiAssistantMessage(el.dataset.text);
+  });
   bindAllAction('add-ai-quote-item', el=>{
     const suggestion = state.aiQuoteSuggestion;
     if(!suggestion || typeof suggestion!=='object') return;

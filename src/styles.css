@@ -678,6 +678,34 @@ tr:hover td{background:var(--glass-highlight);}
 .support-msg-mine{align-self:flex-end;background:linear-gradient(135deg, var(--accent), var(--accent-2));color:var(--accent-ink);border-bottom-right-radius:4px;}
 .support-msg-theirs{align-self:flex-start;background:var(--glass-2);border:1px solid var(--glass-border);border-bottom-left-radius:4px;}
 .support-msg-meta{font-size:10px;opacity:.65;margin-top:3px;}
+
+/* AI Assistant gets its own distinct blue/purple theme (vs. the plain dark
+   support-chat-modal it shares markup structure with) -- deliberately
+   scoped to .ai-assistant-modal only, everywhere else in the app stays on
+   the usual orange/dark ServisPro theme. Signals "this is the AI-powered
+   part" rather than reading as an inconsistent skin, the way a dedicated
+   color for AI features does in a lot of apps. */
+.modal.ai-assistant-modal{background:linear-gradient(165deg, #362a99 0%, #1c1550 55%, #120d38 100%);border-color:rgba(138,123,240,.35);}
+.ai-assistant-modal .support-chat-head{border-bottom-color:rgba(255,255,255,.12);}
+.ai-assistant-modal .support-chat-head h2{color:#fff;}
+.ai-assistant-modal .btn-icon{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.18);}
+.ai-assistant-modal .btn-icon:hover{background:rgba(255,255,255,.2);color:#fff;}
+.ai-assistant-head-avatar{width:34px;height:34px;flex-shrink:0;}
+.ai-assistant-head-avatar svg{width:100%;height:100%;display:block;}
+.ai-assistant-empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:14px 6px 6px;gap:10px;}
+.ai-assistant-mascot{width:104px;height:104px;flex-shrink:0;}
+.ai-assistant-mascot svg{width:100%;height:100%;display:block;}
+.ai-assistant-greeting{font-size:18px;font-weight:700;color:#fff;margin-top:2px;}
+.ai-assistant-subtitle{font-size:12.5px;color:rgba(255,255,255,.68);max-width:320px;line-height:1.5;}
+.ai-assistant-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px;}
+.ai-assistant-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;cursor:pointer;transition:background .15s;}
+.ai-assistant-chip:hover{background:rgba(255,255,255,.2);}
+.ai-assistant-modal .support-msg-theirs{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff;}
+.ai-assistant-input-wrap{display:flex;flex-direction:column;flex-shrink:0;}
+.ai-assistant-modal .support-chat-input-row{border-top-color:rgba(255,255,255,.14);}
+.ai-assistant-modal .support-chat-input-row input{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#fff;}
+.ai-assistant-modal .support-chat-input-row input::placeholder{color:rgba(255,255,255,.5);}
+.ai-assistant-disclaimer{font-size:10.5px;color:rgba(255,255,255,.42);text-align:center;padding:2px 16px 12px;}
 .support-inbox-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--border);cursor:pointer;}
 .support-inbox-row:last-child{border-bottom:none;}
 
