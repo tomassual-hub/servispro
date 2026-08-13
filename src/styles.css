@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 :root{
   --bg: #131417;
@@ -86,7 +86,7 @@ html[data-theme="light"]{
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 body{
-  margin:0;color:var(--text);font-family:'Inter',sans-serif;transition:background-color .25s ease,color .25s ease;
+  margin:0;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;transition:background-color .25s ease,color .25s ease;
   /* Glass only reads as glass when there's something colorful behind it to
      diffuse — a flat dark/light backdrop makes blur invisible. Several
      saturated, generously-sized blobs give every panel something to catch. */
@@ -539,7 +539,7 @@ body::before{
 
 .btn{
   border:none;border-radius:var(--r-sm);padding:10px 18px;font-weight:600;font-size:13px;cursor:pointer;
-  font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:filter .12s,transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s;letter-spacing:.1px;
+  font-family:'Plus Jakarta Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:filter .12s,transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s;letter-spacing:.1px;
 }
 .btn:active{transform:scale(.96);}
 .btn-primary{background:linear-gradient(135deg, var(--accent), var(--accent-2));color:var(--accent-ink);box-shadow:0 4px 12px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,.35);}
@@ -567,7 +567,7 @@ body::before{
 
 input,select,textarea{
   background:var(--glass-2);border:1px solid var(--glass-border);color:var(--text);
-  border-radius:var(--r-sm);padding:10px 13px;font-size:13.5px;font-family:'Inter',sans-serif;width:100%;
+  border-radius:var(--r-sm);padding:10px 13px;font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;width:100%;
   backdrop-filter:blur(8px) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(8px) saturate(var(--glass-sat));
   box-shadow:inset 0 1px 3px var(--shadow);
 }
@@ -667,7 +667,7 @@ tr:hover td{background:var(--glass-highlight);}
    this section" actually read, instead of two identical-looking tab rows
    stacked on each other. */
 .tabs-primary{background:none;border:none;box-shadow:none;padding:0;border-bottom:1.5px solid var(--glass-border);width:auto;gap:2px;backdrop-filter:none;-webkit-backdrop-filter:none;}
-.tabs-primary .tab-btn{background:none;border:none;border-radius:0;padding:10px 14px 12px;font-size:13.5px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px;}
+.tabs-primary .tab-btn{background:none;border:none;border-radius:0;padding:10px 8px 12px;font-size:12px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px;}
 .tabs-primary .tab-btn.active{background:none;color:var(--accent);box-shadow:none;border-bottom-color:var(--accent);}
 
 /* ---------- MODAL (glass, slightly more opaque than cards for readability
@@ -902,10 +902,10 @@ tr:hover td{background:var(--glass-highlight);}
    already loaded and reads far closer to the source image's rounded
    letterforms than Oswald's condensed display style, which is what this
    used before. */
-.login-brand .wordmark{font-family:'Inter',sans-serif;font-weight:800;font-size:34px;letter-spacing:-.5px;margin-top:16px;background:linear-gradient(135deg, var(--accent), var(--accent-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
-.login-brand .wordmark-tagline{font-family:'Inter',sans-serif;font-weight:500;font-size:12px;letter-spacing:.3px;color:var(--text-muted);display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;}
+.login-brand .wordmark{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:34px;letter-spacing:-.5px;margin-top:16px;background:linear-gradient(135deg, var(--accent), var(--accent-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.login-brand .wordmark-tagline{font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;font-size:12px;letter-spacing:.3px;color:var(--text-muted);display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;}
 .login-brand .wordmark-tagline::before,.login-brand .wordmark-tagline::after{content:'';width:18px;height:1px;background:var(--border);flex-shrink:0;}
-.login-brand .wordmark-credit{font-family:'Inter',sans-serif;font-weight:500;font-size:10.5px;letter-spacing:.3px;color:var(--text-muted);opacity:.7;margin-top:5px;}
+.login-brand .wordmark-credit{font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;font-size:10.5px;letter-spacing:.3px;color:var(--text-muted);opacity:.7;margin-top:5px;}
 .login-brand .sub{font-size:12px;color:var(--text-muted);letter-spacing:2.5px;text-transform:uppercase;margin-top:7px;font-weight:600;}
 .staff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:8px;}
 .staff-card{
@@ -973,7 +973,7 @@ tr:hover td{background:var(--glass-highlight);}
 
 /* ---------- PRINT INVOICE ---------- */
 #print-area{display:none;}
-.print-invoice{background:#fff;color:#1a1a1a;padding:40px;font-family:'Inter',sans-serif;max-width:640px;margin:0 auto;font-variant-numeric:tabular-nums;}
+.print-invoice{background:#fff;color:#1a1a1a;padding:40px;font-family:'Plus Jakarta Sans',sans-serif;max-width:640px;margin:0 auto;font-variant-numeric:tabular-nums;}
 .print-invoice h2{font-family:'Oswald',sans-serif;margin:0 0 4px;font-size:19px;}
 .print-invoice .pi-sub{font-size:11px;color:#666;margin-bottom:18px;}
 .print-invoice .pi-row{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;}

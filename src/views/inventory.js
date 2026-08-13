@@ -138,10 +138,10 @@ function viewInventory(){
   return `
   ${db.settings.simpleMode ? '' : `
   <div class="tabs tabs-primary">
-    <div class="tab-btn ${tab==='items'?'active':''}" data-invmaintab="items">${ICONS.inventory} ${tt('Item')}</div>
-    <div class="tab-btn ${tab==='suppliers'?'active':''}" data-invmaintab="suppliers">${ICONS.staff} ${tt('Pembekal')}</div>
-    <div class="tab-btn ${tab==='packages'?'active':''}" data-invmaintab="packages">${ICONS.wallet} ${state.language==='en'?'Packages':'Pakej'}</div>
-    <div class="tab-btn ${tab==='requisition'?'active':''}" data-invmaintab="requisition">${ICONS.alert} ${state.language==='en'?'Reorder Suggestions':'Cadangan Pesanan Semula'}${lowCount>0?` <span class="nav-badge" style="background:var(--danger);color:#fff;">${lowCount}</span>`:''}</div>
+    <div class="tab-btn ${tab==='items'?'active':''}" data-invmaintab="items">${tt('Item')}</div>
+    <div class="tab-btn ${tab==='suppliers'?'active':''}" data-invmaintab="suppliers">${tt('Pembekal')}</div>
+    <div class="tab-btn ${tab==='packages'?'active':''}" data-invmaintab="packages">${state.language==='en'?'Packages':'Pakej'}</div>
+    <div class="tab-btn ${tab==='requisition'?'active':''}" data-invmaintab="requisition">${state.language==='en'?'Reorder Suggestions':'Cadangan Pesanan Semula'}${lowCount>0?` <span class="nav-badge" style="background:var(--danger);color:#fff;">${lowCount}</span>`:''}</div>
   </div>`}
   ${db.settings.simpleMode ? itemsTabHTML : (tab==='items' ? itemsTabHTML : tab==='suppliers' ? suppliersTabHTML : tab==='packages' ? packagesTabHTML : requisitionTabHTML)}
   `;
