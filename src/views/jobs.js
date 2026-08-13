@@ -43,6 +43,7 @@ function viewJobs(){
   const filterCounts = {semua: jobs.length};
   for(const f of filters) if(f.k!=='semua') filterCounts[f.k] = jobs.filter(j=>j.status===f.k).length;
   if(state.jobFilter!=='semua') jobs = jobs.filter(j=>j.status===state.jobFilter);
+  jobs = jobs.filter(j=>withinDateRangeFilter(j.createdAt, state.jobDateFilter));
   const totalJobs = jobs.length;
   const shown = jobs.slice(0, state.jobsShowCount||30);
 
@@ -53,6 +54,11 @@ function viewJobs(){
   </div>
   <div class="tabs tabs-primary">
     ${filters.map(f=>`<div class="tab-btn ${state.jobFilter===f.k?'active':''}" data-jobfilter="${f.k}">${f.l} (${filterCounts[f.k]})</div>`).join('')}
+  </div>
+  <div class="field" style="max-width:220px;margin-bottom:16px;"><label>${state.language==='en'?'Date':'Tarikh'}</label>
+    <select id="job-date-filter">
+      ${dateRangeFilterOptions().map(o=>`<option value="${o.k}" ${(state.jobDateFilter||'all')===o.k?'selected':''}>${o.l}</option>`).join('')}
+    </select>
   </div>
   ${shown.length===0 ? emptyState(tt('Tiada kad kerja untuk penapis ini.')) : `<div class="tickets">${shown.map(renderJobTicket).join('')}</div>`}
   ${totalJobs > shown.length ? `<div style="text-align:center;margin-top:18px;">

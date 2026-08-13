@@ -10,6 +10,7 @@ let state = {
   aiQuoteSuggestion: /** @type {'loading'|'unavailable'|'rate_limited'|{items:{id:string,name:string,qty:number,reason:string}[]}|null} */ (null),
   invTab: 'semua',
   jobFilter: 'semua',
+  jobDateFilter: 'all',
   reportRange: 30,
   currentStaff: null,   // session only, not persisted
   authBusy: false,

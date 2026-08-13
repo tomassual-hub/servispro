@@ -514,6 +514,8 @@ declare function invoiceBalanceDue(inv: Invoice): number;
 declare function creditNotesForInvoice(invoiceId: string): CreditNote[];
 declare function fmtDate(ts: number): string;
 declare function fmtDateTime(ts: number): string;
+declare function dateRangeFilterOptions(): { k: string; l: string }[];
+declare function withinDateRangeFilter(createdAt: number, filterValue: string | undefined): boolean;
 declare function localDateStr(d?: Date): string;
 declare function normalizePhone(phone: string): string;
 declare function canManage(): boolean;

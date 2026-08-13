@@ -43,6 +43,25 @@ function creditNotesForInvoice(invoiceId){
 }
 function fmtDate(ts){ const d=new Date(ts); return d.toLocaleDateString('ms-MY',{day:'2-digit',month:'short',year:'numeric'}); }
 function fmtDateTime(ts){ const d=new Date(ts); return d.toLocaleDateString('ms-MY',{day:'2-digit',month:'short'}) + ' ' + d.toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}); }
+
+// Shared "Tarikh" filter dropdown -- same {k,l} option shape as every other
+// filter list in this codebase (see e.g. the `filters` array in
+// viewJobs()), reused wherever a list of timestamped records benefits from
+// a date-range narrower than "load more". Used by both the Finance section
+// (views/finance.js) and Jobs (views/jobs.js).
+function dateRangeFilterOptions(){
+  const en = state.language==='en';
+  return [
+    {k:'all', l:en?'All Time':'Semua Masa'},
+    {k:'7', l:tt('7 Hari')},
+    {k:'30', l:tt('30 Hari')},
+    {k:'90', l:tt('90 Hari')},
+  ];
+}
+function withinDateRangeFilter(createdAt, filterValue){
+  if(!filterValue || filterValue==='all') return true;
+  return createdAt >= Date.now() - Number(filterValue)*24*60*60*1000;
+}
 function logAudit(action, detail){
   db.auditLog.unshift({id:uid(), ts:Date.now(), staff: state.currentStaff?state.currentStaff.name:'?', action, detail});
   if(db.auditLog.length>300) db.auditLog.length = 300;

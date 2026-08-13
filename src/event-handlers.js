@@ -75,6 +75,8 @@ function attachHandlers(){
   });
   document.querySelectorAll('[data-jobfilter]').forEach(el=>el.addEventListener('click', ()=>setState({jobFilter:el.dataset.jobfilter, jobsShowCount:30})));
   bindAction('load-more-jobs', ()=>setState({jobsShowCount:(state.jobsShowCount||30)+30}));
+  const jobDateSel = document.getElementById('job-date-filter');
+  if(jobDateSel) jobDateSel.addEventListener('change', ()=>setState({jobDateFilter:jobDateSel.value, jobsShowCount:30}));
   document.querySelectorAll('[data-invtab]').forEach(el=>el.addEventListener('click', ()=>setState({invTab:el.dataset.invtab, inventoryShowCount:30})));
   document.querySelectorAll('[data-invmaintab]').forEach(el=>el.addEventListener('click', ()=>setState({invMainTab:el.dataset.invmaintab})));
   bindAction('load-more-inventory', ()=>setState({inventoryShowCount:(state.inventoryShowCount||30)+30}));

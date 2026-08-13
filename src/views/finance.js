@@ -31,21 +31,6 @@ function financeStatusOptions(tab){
     {k:'balance', l:en?'Balance Due':'Ada Baki'},
   ];
 }
-function financeDateOptions(){
-  const en = state.language==='en';
-  return [
-    {k:'all', l:en?'All Time':'Semua Masa'},
-    {k:'7', l:tt('7 Hari')},
-    {k:'30', l:tt('30 Hari')},
-    {k:'90', l:tt('90 Hari')},
-  ];
-}
-function withinFinanceDateFilter(createdAt){
-  const f = state.financeDateFilter;
-  if(!f || f==='all') return true;
-  return createdAt >= Date.now() - Number(f)*24*60*60*1000;
-}
-
 function viewFinance(){
   const en = state.language==='en';
   const isAdmin = canSeeRevenue();
@@ -74,14 +59,14 @@ function viewFinance(){
     </div>
     <div class="field"><label>${en?'Date':'Tarikh'}</label>
       <select id="finance-date-filter">
-        ${financeDateOptions().map(o=>`<option value="${o.k}" ${(state.financeDateFilter||'all')===o.k?'selected':''}>${o.l}</option>`).join('')}
+        ${dateRangeFilterOptions().map(o=>`<option value="${o.k}" ${(state.financeDateFilter||'all')===o.k?'selected':''}>${o.l}</option>`).join('')}
       </select>
     </div>
   </div>`;
 
   let bodyHTML;
   if(tab==='quotations'){
-    let list = [...db.quotations].filter(q=>statusFilter==='all'||q.status===statusFilter).filter(q=>withinFinanceDateFilter(q.createdAt));
+    let list = [...db.quotations].filter(q=>statusFilter==='all'||q.status===statusFilter).filter(q=>withinDateRangeFilter(q.createdAt, state.financeDateFilter));
     list.sort((a,b)=>b.createdAt-a.createdAt);
     const total = list.length;
     list = list.slice(0, shown);
@@ -117,7 +102,7 @@ function viewFinance(){
       if(statusFilter==='all') return true;
       const due = invoiceBalanceDue(inv);
       return statusFilter==='balance' ? due>0.004 : due<=0.004;
-    }).filter(inv=>withinFinanceDateFilter(inv.createdAt));
+    }).filter(inv=>withinDateRangeFilter(inv.createdAt, state.financeDateFilter));
     list.sort((a,b)=>b.createdAt-a.createdAt);
     const total = list.length;
     list = list.slice(0, shown);
@@ -153,7 +138,7 @@ function viewFinance(){
     </div>`;
   } else { // po
     const lowCount = db.inventory.filter(i=>i.qty<=i.lowStock).length;
-    let list = [...db.purchaseOrders].filter(po=>statusFilter==='all'||po.status===statusFilter).filter(po=>withinFinanceDateFilter(po.createdAt));
+    let list = [...db.purchaseOrders].filter(po=>statusFilter==='all'||po.status===statusFilter).filter(po=>withinDateRangeFilter(po.createdAt, state.financeDateFilter));
     list.sort((a,b)=>b.createdAt-a.createdAt);
     const total = list.length;
     list = list.slice(0, shown);
