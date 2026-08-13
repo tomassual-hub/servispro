@@ -631,10 +631,34 @@ tr:hover td{background:var(--glass-highlight);}
 .jt-stripe.st-done{background:repeating-linear-gradient(-45deg,var(--success),var(--success) 6px,#2b2822 6px,#2b2822 12px);}
 .jt-stripe.st-delivered{background:repeating-linear-gradient(-45deg,#9A9FA6,#9A9FA6 6px,#2b2822 6px,#2b2822 12px);}
 
-.tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:wrap;background:var(--glass-2);padding:5px;border-radius:calc(var(--r-sm) + 5px);border:1px solid var(--glass-border);width:fit-content;max-width:100%;box-shadow:inset 0 1px 3px var(--shadow);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));}
-.tab-btn{padding:8.5px 16px;border-radius:var(--r-sm);background:transparent;color:var(--text-muted);border:none;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:.1px;}
+/* flex-wrap:nowrap + overflow-x:auto instead of wrap -- on a real phone
+   width, a 4-5 tab row (Jobs' status filter, Inventory's top tabs) wrapped
+   onto 2-3 uneven rows instead of behaving like any native app's tab bar
+   (single row, scrolls sideways if it doesn't fit). Doesn't change
+   anything for the 2-3-tab strips elsewhere (appointments/customers/
+   staff/reports/login-kiosk) since those already fit on one line -- this
+   is a safety net for all of them, not just the ones that were visibly
+   broken. Scrollbar hidden since the row itself is the affordance; a
+   visible scrollbar here reads as a stray UI element, not a hint. */
+.tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:nowrap;overflow-x:auto;background:var(--glass-2);padding:5px;border-radius:calc(var(--r-sm) + 5px);border:1px solid var(--glass-border);width:fit-content;max-width:100%;box-shadow:inset 0 1px 3px var(--shadow);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{padding:8.5px 16px;border-radius:var(--r-sm);background:transparent;color:var(--text-muted);border:none;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:.1px;white-space:nowrap;flex-shrink:0;}
 .tab-btn:hover{color:var(--text);}
 .tab-btn.active{background:linear-gradient(135deg, var(--accent), var(--accent-2));color:var(--accent-ink);box-shadow:0 3px 10px -2px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,.3);}
+
+/* .tabs-primary: a bolder, full-width, underline-style bar layered on top
+   of the base .tabs/.tab-btn rules above (2-class selectors here always
+   beat the 1-class base rules on specificity, so this is safe regardless
+   of source order) -- reserved for a page's TOP-LEVEL section switch
+   (Jobs' status filter, Inventory's Item/Pembekal/Pakej/... tabs), never
+   a secondary filter row (e.g. Inventory's Semua/Stok Rendah inside the
+   Item tab stays on the plain pill style) -- the visual weight difference
+   is what makes the hierarchy between "which section" and "filter within
+   this section" actually read, instead of two identical-looking tab rows
+   stacked on each other. */
+.tabs-primary{background:none;border:none;box-shadow:none;padding:0;border-bottom:1.5px solid var(--glass-border);width:auto;gap:2px;backdrop-filter:none;-webkit-backdrop-filter:none;}
+.tabs-primary .tab-btn{background:none;border:none;border-radius:0;padding:10px 14px 12px;font-size:13.5px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px;}
+.tabs-primary .tab-btn.active{background:none;color:var(--accent);box-shadow:none;border-bottom-color:var(--accent);}
 
 /* ---------- MODAL (glass, slightly more opaque than cards for readability
    over dense forms) ---------- */

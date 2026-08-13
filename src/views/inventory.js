@@ -185,7 +185,7 @@ function viewInventory(){
 
   return `
   ${db.settings.simpleMode ? '' : `
-  <div class="tabs">
+  <div class="tabs tabs-primary">
     <div class="tab-btn ${tab==='items'?'active':''}" data-invmaintab="items">${ICONS.inventory} ${tt('Item')}</div>
     <div class="tab-btn ${tab==='suppliers'?'active':''}" data-invmaintab="suppliers">${ICONS.staff} ${tt('Pembekal')}</div>
     <div class="tab-btn ${tab==='packages'?'active':''}" data-invmaintab="packages">${ICONS.wallet} ${state.language==='en'?'Packages':'Pakej'}</div>

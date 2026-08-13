@@ -37,6 +37,11 @@ function viewJobs(){
   if(!isAdmin && state.currentStaff){
     jobs = jobs.filter(j=>j.mechanic===state.currentStaff.name || !j.mechanic);
   }
+  // Counted against the branch/mechanic-scoped list (before the status
+  // filter itself is applied) so every tab's own count stays accurate
+  // regardless of which status is currently selected.
+  const filterCounts = {semua: jobs.length};
+  for(const f of filters) if(f.k!=='semua') filterCounts[f.k] = jobs.filter(j=>j.status===f.k).length;
   if(state.jobFilter!=='semua') jobs = jobs.filter(j=>j.status===state.jobFilter);
   const totalJobs = jobs.length;
   const shown = jobs.slice(0, state.jobsShowCount||30);
@@ -46,8 +51,8 @@ function viewJobs(){
     <div><div class="sub">${isAdmin ? tt('Urus tiket kerja servis seperti bengkel sebenar') : tt('Kad kerja ditugaskan kepada anda')}</div></div>
     <button class="btn btn-primary" data-action="new-job">${ICONS.plus} ${tt('Kad Kerja Baharu')}</button>
   </div>
-  <div class="tabs">
-    ${filters.map(f=>`<div class="tab-btn ${state.jobFilter===f.k?'active':''}" data-jobfilter="${f.k}">${f.l}</div>`).join('')}
+  <div class="tabs tabs-primary">
+    ${filters.map(f=>`<div class="tab-btn ${state.jobFilter===f.k?'active':''}" data-jobfilter="${f.k}">${f.l} (${filterCounts[f.k]})</div>`).join('')}
   </div>
   ${shown.length===0 ? emptyState(tt('Tiada kad kerja untuk penapis ini.')) : `<div class="tickets">${shown.map(renderJobTicket).join('')}</div>`}
   ${totalJobs > shown.length ? `<div style="text-align:center;margin-top:18px;">
