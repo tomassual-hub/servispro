@@ -89,6 +89,17 @@ jobs:
         run: |
           set -e
           TAG="android-v${{ github.run_number }}"
+          # `gh release create` uploads assets via separate API calls internally
+          # (draft -> upload each file -> publish) and retries transient HTTP
+          # failures on its own -- if a retry re-sends an upload that actually
+          # already succeeded server-side, the second attempt gets a hard
+          # "ReleaseAsset.name already exists" and the whole step fails even
+          # though the release was basically fine (hit once, on android-v65).
+          # run_number is unique to this run, so nothing legitimate should
+          # already be sitting under $TAG -- clear out any such leftover
+          # (from exactly that kind of partial/retried attempt) before
+          # creating fresh, so this step is safe to re-run either way.
+          gh release delete "$TAG" --yes --cleanup-tag 2>/dev/null || true
           gh release create "$TAG" \
             android-app/ServisPro.apk android-app/ServisPro.aab \
             --title "Android build $TAG" \
