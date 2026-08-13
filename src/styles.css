@@ -385,15 +385,17 @@ body::before{
   .mobile-tab-badge{position:absolute;top:1px;right:16%;background:var(--danger);color:#fff;font-size:9px;font-weight:700;border-radius:20px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1;box-shadow:0 0 0 2px var(--glass-2);}
   .mobile-tab-item.active .mobile-tab-badge{box-shadow:0 0 0 2px var(--accent);}
 
-  /* Anchored to the bottom nav bar's own top-right corner (a reference app
-     the user pointed to sits its AI button astride the nav bar, bleeding
-     slightly past the screen edge, with a bold accent ring -- not floating
-     free in the gap above it the way this button used to). z-index above
-     .mobile-tabbar's 45 so it draws on top where the two overlap, instead
-     of getting clipped behind the bar. */
+  /* Sits close to the bottom nav bar's top-right corner (a reference app
+     the user pointed to anchors its AI button right there, bleeding
+     slightly past the screen edge, with a bold accent ring) but with a
+     real gap above the bar, not overlapping it -- overlapping ended up
+     covering part of the last nav tab ("Lagi"), which the user asked to
+     fix. .mobile-tabbar sits at bottom:22px with ~67px height, so its top
+     edge is ~89px up from the viewport bottom; 99px here leaves a clean
+     ~10px gap above that regardless of device safe-area inset. */
   .mobile-ai-bubble{
     display:flex;align-items:center;justify-content:center;overflow:hidden;
-    position:fixed;right:2px;bottom:calc(48px + env(safe-area-inset-bottom));z-index:46;
+    position:fixed;right:2px;bottom:calc(99px + env(safe-area-inset-bottom));z-index:44;
     width:58px;height:58px;border-radius:50%;cursor:pointer;padding:0;
     border:3px solid var(--accent);
     background:linear-gradient(135deg, var(--accent), var(--accent-2));color:var(--accent-ink);
