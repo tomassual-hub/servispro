@@ -21,6 +21,12 @@ async function requestAiSuggestion(job){
     });
     if(error) throw error;
     if(!data || data.error){
+      // Same reasoning as the reportError call in requestAiQuoteSuggestion
+      // below: a structured {error} response (HTTP 200) never throws, so
+      // without this it's invisible everywhere -- console, Sentry, the UI
+      // (just a generic "not available" line). Surface anything that ISN'T
+      // the expected/benign rate_limited case.
+      if(!data || data.error!=='rate_limited') reportError(new Error('ai-suggest-checklist: '+(data ? data.error : 'empty response')), 'Cadangan AI (senarai semak) - respons ralat');
       state.aiSuggestion = data && data.error==='rate_limited' ? 'rate_limited' : 'unavailable';
       render();
       return;
