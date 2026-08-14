@@ -162,7 +162,7 @@ function attachHandlers(){
       lowItems.forEach(i=>{
         const key = i.supplierId || 'none';
         if(!bySupplier[key]) bySupplier[key] = [];
-        bySupplier[key].push({name:i.name, qty:Math.max(i.lowStock*2 - i.qty, i.lowStock), cost:i.cost});
+        bySupplier[key].push({name:i.name, qty:Math.max(i.lowStock*2 - i.qty, i.lowStock), cost:i.cost, refId:i.id});
       });
       for(const [supplierId, items] of Object.entries(bySupplier)){
         const poNo = await nextPoNo();
@@ -184,7 +184,7 @@ function attachHandlers(){
     const lowItems = db.inventory.filter(i=>i.qty<=i.lowStock && (i.supplierId||'none')===(el.dataset.supplier));
     if(lowItems.length===0) return;
     try{
-      const items = lowItems.map(i=>({name:i.name, qty:Math.max(i.lowStock*2 - i.qty, i.lowStock), cost:i.cost}));
+      const items = lowItems.map(i=>({name:i.name, qty:Math.max(i.lowStock*2 - i.qty, i.lowStock), cost:i.cost, refId:i.id}));
       const poNo = await nextPoNo();
       const po = {id:uid(), poNo, supplierId, items, status:'pending', createdAt:Date.now()};
       db.purchaseOrders.push(po);
@@ -215,8 +215,16 @@ function attachHandlers(){
       if(receiveNow<=0) return;
       anyReceived = true;
       poi.receivedQty = (poi.receivedQty||0)+receiveNow;
-      const item = db.inventory.find(i=>i.name===poi.name);
+      // refId (set for auto/low-stock-generated PO lines -- see auto-po/
+      // create-po-for-supplier) is the real link back to the inventory row;
+      // fall back to matching by name only for a manually typed PO (save-po
+      // free-text entry has no inventory item to link at all). Matching by
+      // name alone used to mean renaming or deleting the inventory item
+      // after the PO was created silently lost the stock: the PO still got
+      // marked "received" with no error, but item.qty never actually moved.
+      const item = poi.refId ? db.inventory.find(i=>i.id===poi.refId) : db.inventory.find(i=>i.name===poi.name);
       if(item) item.qty += receiveNow;
+      else reportError(new Error(`Receive PO: no inventory item found for "${poi.name}"`), 'Terima PO: item inventori tidak dijumpai, stok tidak dikemas kini');
     });
     if(!anyReceived){ showToast(en?'Enter a quantity to receive.':'Masukkan kuantiti untuk diterima.'); return; }
     po.status = po.items.every(i=>(i.receivedQty||0)>=i.qty) ? 'received' : 'partial';

@@ -213,7 +213,7 @@ interface Contract {
 }
 
 interface Supplier { id: string; name: string; phone?: string; email?: string; }
-interface POItem { name: string; qty: number; cost: number; receivedQty?: number; }
+interface POItem { name: string; qty: number; cost: number; receivedQty?: number; refId?: string; }
 interface PurchaseOrder {
   id: string;
   poNo: string;
