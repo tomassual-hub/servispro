@@ -112,7 +112,7 @@ interface Invoice {
 // after the fact (e.g. a part was returned, an overcharge is corrected) --
 // it's its own numbered document (CN-xxxx), not an edit to the original
 // invoice, so the original invoice stays an unaltered record.
-interface CreditNoteItem { name: string; qty: number; price: number; refId?: string; }
+interface CreditNoteItem { name: string; qty: number; price: number; refId?: string; invoiceItemIdx?: number; }
 interface CreditNote {
   id: string;
   creditNoteNo: string;

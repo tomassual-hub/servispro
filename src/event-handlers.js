@@ -2075,13 +2075,29 @@ function attachHandlers(){
     const reason = document.getElementById('cn-reason').value.trim();
     if(!reason){ showToast(en?'Please enter a reason.':'Sila masukkan sebab.'); return; }
     const qtyInputs = document.querySelectorAll('[data-cn-qty-idx]');
+    // The invoice's own discount is applied once, across the whole cart
+    // (see checkout/save-quotation), not per line -- invItem.price below is
+    // still the PRE-discount unit price. Without prorating it here, a
+    // credit note against a discounted invoice refunds the customer more
+    // than they actually paid (e.g. a 10%-off invoice would credit back the
+    // full undiscounted price of a returned item), and the same undiscounted
+    // figure feeds P&L revenue and mechanic commission via
+    // creditNotesForInvoice() in reports.js/payroll.js, understating both.
+    const discountRatio = invoice.subtotal>0 ? (invoice.discount||0)/invoice.subtotal : 0;
     const items = [];
     qtyInputs.forEach(inp=>{
       const idx = Number(inp.dataset.cnQtyIdx);
       const qty = Math.max(0, Number(inp.value)||0);
       if(qty<=0) return;
       const invItem = invoice.items[idx];
-      items.push({name:invItem.name, qty, price:invItem.price, refId:invItem.refId||undefined});
+      const price = invItem.price * (1-discountRatio);
+      // invoiceItemIdx (not just name) is what creditNoteModalHTML uses to
+      // track how much of THIS line was already credited -- two distinct
+      // custom/no-refId cart lines can share an identical typed name (e.g.
+      // two "Labor" charges added via add-custom-cart, which never dedupes
+      // by name), and name-only tracking would let crediting one wrongly
+      // count against the other's remaining creditable qty.
+      items.push({name:invItem.name, qty, price, refId:invItem.refId||undefined, invoiceItemIdx:idx});
     });
     if(items.length===0){ showToast(en?'Enter a quantity to credit for at least one item.':'Masukkan kuantiti kredit untuk sekurang-kurangnya satu item.'); return; }
     try{

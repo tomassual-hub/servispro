@@ -265,9 +265,17 @@ function viewPOS(){
 
 function creditNoteModalHTML(invoice){
   const en = state.language==='en';
-  const alreadyCredited = {};
+  // Tracked by invoiceItemIdx (which line was credited), not just name --
+  // two distinct custom cart lines can share an identical typed name (see
+  // add-custom-cart, which never dedupes by name), so name-only tracking
+  // could let crediting one line wrongly count against another's remaining
+  // creditable qty. Falls back to name for credit notes issued before
+  // invoiceItemIdx existed.
+  const alreadyCreditedByIdx = {};
+  const alreadyCreditedByName = {};
   (db.creditNotes||[]).filter(cn=>cn.invoiceId===invoice.id).forEach(cn=>cn.items.forEach(ci=>{
-    alreadyCredited[ci.name] = (alreadyCredited[ci.name]||0)+ci.qty;
+    if(ci.invoiceItemIdx!=null) alreadyCreditedByIdx[ci.invoiceItemIdx] = (alreadyCreditedByIdx[ci.invoiceItemIdx]||0)+ci.qty;
+    else alreadyCreditedByName[ci.name] = (alreadyCreditedByName[ci.name]||0)+ci.qty;
   }));
   return `
     <h2>${en?'Issue Credit Note':'Keluarkan Nota Kredit'} — ${invoice.invoiceNo}</h2>
@@ -276,7 +284,7 @@ function creditNoteModalHTML(invoice){
       <thead><tr><th>${tt('Item')}</th><th>${en?'Invoiced Qty':'Kuantiti Diinvois'}</th><th>${en?'Credit Qty':'Kuantiti Kredit'}</th></tr></thead>
       <tbody>
         ${invoice.items.map((it,idx)=>{
-          const already = alreadyCredited[it.name]||0;
+          const already = (alreadyCreditedByIdx[idx]||0) + (alreadyCreditedByName[it.name]||0);
           const maxCreditable = Math.max(0, it.qty-already);
           return `<tr>
             <td style="font-weight:600;">${esc(it.name)}${already>0?` <span style="font-size:10.5px;color:var(--text-muted);">(${en?'already credited':'sudah dikreditkan'} ${already})</span>`:''}</td>
