@@ -386,17 +386,20 @@ body::before{
   .mobile-tab-item.active .mobile-tab-badge{box-shadow:0 0 0 2px var(--accent);}
 
   /* Sits close to the bottom nav bar's top-right corner (a reference app
-     the user pointed to anchors its AI button right there, bleeding
-     slightly past the screen edge, with a bold accent ring) but with a
-     real gap above the bar, not overlapping it -- overlapping ended up
-     covering part of the last nav tab ("Lagi"), which the user asked to
-     fix. .mobile-tabbar sits at bottom:22px with ~67px height, so its top
-     edge is ~89px up from the viewport bottom; 99px here leaves a clean
-     ~10px gap above that regardless of device safe-area inset. */
+     the user pointed to anchors its AI button right there, with a bold
+     accent ring) but with a real gap above the bar, not overlapping it --
+     overlapping ended up covering part of the last nav tab ("Lagi"), which
+     the user asked to fix. .mobile-tabbar sits at bottom:22px with ~67px
+     height, so its top edge is ~89px up from the viewport bottom; 99px here
+     leaves a clean ~10px gap above that regardless of device safe-area
+     inset. Kept off the right edge itself (was flush at right:2px, per the
+     user's own follow-up -- it read as glued to the edge rather than
+     floating) at the same 12px .mobile-tabbar uses below it, so the two
+     floating elements share one consistent margin from the screen edge. */
   .mobile-ai-bubble{
     display:flex;align-items:center;justify-content:center;overflow:hidden;
-    position:fixed;right:2px;bottom:calc(130px + env(safe-area-inset-bottom));z-index:44;
-    width:66px;height:66px;border-radius:50%;cursor:pointer;padding:0;
+    position:fixed;right:12px;bottom:calc(130px + env(safe-area-inset-bottom));z-index:44;
+    width:58px;height:58px;border-radius:50%;cursor:pointer;padding:0;
     /* Speed-dial-style dual-ring badge: a dark inner ring hugs the avatar
        photo, then a gold outer ring sits just outside it via box-shadow
        spread (not a second border, so it doesn't grow the box model / shift
