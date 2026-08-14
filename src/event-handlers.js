@@ -1598,6 +1598,7 @@ function attachHandlers(){
     state.posVehicleId = job.vehicleId;
     state.posJobId = job.id;
     state.posCart = [];
+    state.posLastInvoiceId = null; // don't show a previous sale's reprint button next to this new job's context
     // Straight pass-through, same reasoning as the description display in
     // pos.js -- a mechanic who already typed an estimated price on the job
     // card shouldn't have to re-enter it as a custom cart item by hand. No
@@ -2089,6 +2090,11 @@ function attachHandlers(){
       queueSave();
       state.posCart = []; state.posCustomerId=''; state.posVehicleId=''; state.posJobId=''; state.posDiscountValue=0; state.posDiscountType='flat';
       state.posSplitMode = false; state.posSplitPayments = []; state.posConvertingQuoteId = null; state.posEditingInvoiceId = null;
+      // Surfaced in the now-empty cart panel (see viewPOS() in pos.js) as a
+      // "Cetak Invois" button reusing the existing print-invoice action --
+      // previously the only way to print was to leave POS entirely and find
+      // the invoice again in Finance > Invoices.
+      state.posLastInvoiceId = invoice.id;
       render();
       showToast(tt('Invois ')+invoice.invoiceNo+tt(' berjaya dijana!'));
     }catch(e){

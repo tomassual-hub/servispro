@@ -157,6 +157,23 @@ function viewPOS(){
 
       ${state.posJobId ? renderAiQuoteSuggestionBox() : ''}
 
+      ${(()=>{
+        // Shown only while the cart is still empty right after checkout --
+        // reusing the same print-invoice action Finance > Invoices uses, so
+        // printing a receipt doesn't require leaving POS and hunting for the
+        // invoice there. Cleared on the next "Hantar ke POS" (job-to-pos in
+        // event-handlers.js) so it never lingers next to a different job's
+        // context; naturally stops showing the moment a new item is added to
+        // the cart, since that condition alone gates this block.
+        if(cart.length>0 || !state.posLastInvoiceId) return '';
+        const lastInv = db.invoices.find(i=>i.id===state.posLastInvoiceId);
+        if(!lastInv) return '';
+        return `<div class="panel" style="background:var(--accent-soft);border-color:var(--accent);padding:12px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <div style="font-size:12.5px;"><strong>${lastInv.invoiceNo}</strong><br><span style="color:var(--text-muted);">${fmtRM(lastInv.total)}</span></div>
+          <button class="btn btn-primary btn-sm" data-action="print-invoice" data-id="${lastInv.id}">${ICONS.printer} ${state.language==='en'?'Print Invoice':'Cetak Invois'}</button>
+        </div>`;
+      })()}
+
       <div style="margin:14px 0;">
         ${cart.length===0 ? emptyState(tt('Troli kosong. Pilih item di sebelah kiri.')) : cart.map((c,idx)=>`
           <div class="cart-row">

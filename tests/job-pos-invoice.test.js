@@ -95,6 +95,8 @@ async function run(){
   // INV-#### number) before the invoice lands in db.invoices — poll instead
   // of guessing a fixed sleep covers that latency.
   await pageA.waitForFunction(() => db.invoices.some(inv => inv.items && inv.items.some(it=>it.name==='JPI Test Item')), { timeout: 10000 }).catch(()=>{});
+  await pageA.waitForTimeout(300);
+  r.checkTrue('"Cetak Invois" button appears in POS right after checkout', await pageA.evaluate(() => !!document.querySelector('[data-action="print-invoice"]')));
 
   const result = await pageA.evaluate((id) => {
     const inv = db.invoices.find(inv => inv.items && inv.items.some(it=>it.name==='JPI Test Item'));
