@@ -262,10 +262,20 @@ body::before{
      the login screen: this banner has its own fixed dark backdrop regardless
      of state.theme, so its text colors are hardcoded to match rather than
      pulling from the (possibly light-mode) --text tokens .stat-label/
-     .stat-sub normally resolve to. */
+     .stat-sub normally resolve to.
+     flex-shrink:0 on all three -- .dashboard-view is a flex column, and the
+     default flex-shrink:1 lets a flex item's reserved layout box shrink
+     below its actual content height if the container ever ends up height-
+     constrained. A user screenshot showed exactly that on iOS Safari (not
+     reproducible in desktop testing): .dash-target-panel's box started well
+     inside where the sticky .dash-hero above it should still be reserving
+     space, so its content visibly sat on top of the hero's. These are
+     summary cards, never meant to compress below their own content in the
+     first place, so flex-shrink:0 is correct regardless of whether this was
+     the exact mechanism. */
   .dashboard-view{display:flex;flex-direction:column;}
   .dash-hero{
-    order:-3;text-align:left;
+    order:-3;text-align:left;flex-shrink:0;
     background:linear-gradient(135deg, #1c130a, #0d0906 65%, #030201);
     border-color:rgba(242,167,59,.28);
     /* Full-bleed: break out of .content's side padding so the banner runs
@@ -303,17 +313,19 @@ body::before{
      mobile hero already paints its own opaque gradient background above
      (line ~256) rather than relying on the glass-blur-over-content look
      the desktop/other panels use.
-     transform:translateZ(0) added for a second, separate iOS Safari bug
-     reported after the background-attachment fix above: scrolling back UP
-     (not down) could briefly paint the panels below this hero ON TOP of
-     it, i.e. z-index:5 losing to unpositioned normal-flow siblings that
-     have no z-index of their own -- something CSS's stacking rules don't
-     allow, so this was Safari's own compositor picking the wrong paint
-     order for a sticky layer specifically during scroll-direction
-     reversal, not a stylesheet bug. Promoting this element to its own
-     GPU layer (the standard fix for this WebKit quirk) keeps it on a
-     stable compositing layer instead of one Safari recomputes mid-scroll. */
-  .panel.dash-hero{border-radius:0;position:sticky;top:0;z-index:5;backdrop-filter:none;-webkit-backdrop-filter:none;transform:translateZ(0);-webkit-transform:translateZ(0);}
+     NOTE: a transform:translateZ(0) "promote to GPU layer" was tried here
+     for a follow-up report (content briefly painting over this hero on
+     scroll-up) and REMOVED again -- a real screenshot from the user
+     afterward showed .dash-target-panel's box starting well inside where
+     this hero should still occupy space, i.e. the *reserved layout height*
+     for a sticky flex item no longer matched what actually painted, not
+     just a z-index/paint-order glitch. That's a documented WebKit bug:
+     applying `transform` to a position:sticky element can make Safari stop
+     reserving its normal-flow space for following siblings, even though it
+     keeps rendering (and z-index-winning) at its stuck position -- exactly
+     this symptom. Don't reapply that fix without solving the space-
+     reservation regression it causes. */
+  .panel.dash-hero{border-radius:0;position:sticky;top:0;z-index:5;backdrop-filter:none;-webkit-backdrop-filter:none;}
   /* clamp() with a vw-based preferred size, not a fixed px guess -- this
      media query alone covers everything from a ~320px small phone up to
      an 880px tablet, and a fixed size that fits a 390px screen edge-to-
@@ -357,8 +369,8 @@ body::before{
      too rather than left floating alone in an otherwise-empty bar. */
   .main[data-hero-notif="1"] .topbar{padding:0;border-bottom:none;background:transparent;box-shadow:none;min-height:0;}
   .main[data-hero-notif="1"] .topbar #sync-indicator{display:none;}
-  .dash-target-panel{order:-2;}
-  .dash-quickstats{order:-1;}
+  .dash-target-panel{order:-2;flex-shrink:0;}
+  .dash-quickstats{order:-1;flex-shrink:0;}
   /* The dashboard's paired appointments/contracts panel stays 2 equal
      columns on mobile instead of collapsing to 1 -- .dash-split beats the
      plain .grid-2 rule below on specificity alone. min-width:0 overrides
