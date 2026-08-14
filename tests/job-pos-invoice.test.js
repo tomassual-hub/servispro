@@ -16,7 +16,7 @@ async function run(){
   await pageA.evaluate(() => {
     db.customers = db.customers.filter(c => c.name !== 'JPI TEST CUSTOMER');
     db.vehicles = db.vehicles.filter(v => v.plate !== 'JPI 0001');
-    db.jobs = db.jobs.filter(j => j.description !== 'JPI test job');
+    db.jobs = db.jobs.filter(j => j.description !== 'JPI test job' && j.description !== 'JPI test job EDITED');
     db.inventory = db.inventory.filter(i => i.sku !== 'JPI-ITEM-1');
     db.invoices = db.invoices.filter(inv => inv.items && inv.items.some(it=>it.name==='JPI Test Item'));
     queueSave();
@@ -76,8 +76,14 @@ async function run(){
 
   await pageA.evaluate((id) => { const job = db.jobs.find(j=>j.id===id); setState({ view:'jobs', modal:{type:'job-detail', job} }); }, jobId);
   await pageA.waitForTimeout(200);
+  // Regression check: editing the description and clicking "Hantar ke POS"
+  // directly (skipping "Simpan") must still persist the edit -- job-to-pos
+  // used to read job.description straight from db.jobs without ever writing
+  // back the modal's #job-desc-edit textarea first.
+  await pageA.fill('#job-desc-edit', 'JPI test job EDITED');
   await clickInPage(pageA, `[data-action="job-to-pos"][data-id="${jobId}"]`);
   await pageA.waitForTimeout(400);
+  r.check('description edited just before "Hantar ke POS" (no Simpan click) still persists', await pageA.evaluate(id => db.jobs.find(j=>j.id===id)?.description, jobId), 'JPI test job EDITED');
   await pageA.click(`[data-action="add-to-cart"][data-id="${itemId}"]`);
   await pageA.waitForTimeout(300);
   await pageA.click('[data-action="checkout"]');
@@ -86,13 +92,13 @@ async function run(){
   // of guessing a fixed sleep covers that latency.
   await pageA.waitForFunction(() => db.invoices.some(inv => inv.items && inv.items.some(it=>it.name==='JPI Test Item')), { timeout: 10000 }).catch(()=>{});
 
-  const result = await pageA.evaluate(() => {
+  const result = await pageA.evaluate((id) => {
     const inv = db.invoices.find(inv => inv.items && inv.items.some(it=>it.name==='JPI Test Item'));
-    const job = db.jobs.find(j=>j.description==='JPI test job');
+    const job = db.jobs.find(j=>j.id===id);
     const item = db.inventory.find(i=>i.sku==='JPI-ITEM-1');
     const cust = db.customers.find(c=>c.name==='JPI TEST CUSTOMER');
     return { invoiceJobId: inv?.jobId, invoiceTotal: inv?.total, jobInvoiced: job?.invoiced, jobStatus: job?.status, itemQty: item?.qty, custVisits: cust?.visits };
-  });
+  }, jobId);
   r.check('invoice linked to the correct job', result.invoiceJobId, jobId);
   r.check('invoice total correct (1x RM25)', result.invoiceTotal, 25);
   r.checkTrue('job marked invoiced', result.jobInvoiced);
@@ -112,7 +118,7 @@ async function run(){
   await pageA.evaluate(() => {
     db.customers = db.customers.filter(c => c.name !== 'JPI TEST CUSTOMER');
     db.vehicles = db.vehicles.filter(v => v.plate !== 'JPI 0001');
-    db.jobs = db.jobs.filter(j => j.description !== 'JPI test job');
+    db.jobs = db.jobs.filter(j => j.description !== 'JPI test job' && j.description !== 'JPI test job EDITED');
     db.inventory = db.inventory.filter(i => i.sku !== 'JPI-ITEM-1');
     db.invoices = db.invoices.filter(inv => !(inv.items && inv.items.some(it=>it.name==='JPI Test Item')));
     queueSave();

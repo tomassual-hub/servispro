@@ -28,6 +28,29 @@ function bindGlobalSearchResultHandlers(){
   }));
 }
 
+// "Hantar ke POS" and "Simpan" are two separate footer buttons on the job
+// detail modal (jobs.js jobDetailModalHTML) -- a mechanic who types a
+// description then clicks "Hantar ke POS" directly (skipping "Simpan")
+// used to have that edit silently discarded, since job.description was
+// only ever written back from #job-desc-edit inside save-job-status. That
+// left the AI quote-suggestion call in job-to-pos analyzing a stale/empty
+// description. Shared here so both handlers persist the same edits.
+function captureJobModalEdits(job){
+  const descEl = document.getElementById('job-desc-edit');
+  if(!descEl) return;
+  const newStatus = document.getElementById('job-status-select').value;
+  if((newStatus==='done'||newStatus==='delivered') && job.status!=='done' && job.status!=='delivered'){
+    job.doneAt = Date.now();
+  }
+  if(newStatus==='waiting'||newStatus==='progress'){ job.doneAt = null; }
+  job.status = newStatus;
+  job.description = descEl.value.trim();
+  job.mechanic = document.getElementById('job-mechanic-edit').value.trim();
+  job.internalNote = document.getElementById('job-note-edit').value.trim();
+  const bayEl = document.getElementById('job-bay-edit');
+  if(bayEl) job.bayId = bayEl.value || null;
+}
+
 /* ============================= EVENT HANDLERS ============================= */
 function attachHandlers(){
   document.querySelectorAll('[data-nav]').forEach(el=>el.addEventListener('click', ()=>setState({view:el.dataset.nav, navOpen:false, globalSearch:''})));
@@ -1504,17 +1527,7 @@ function attachHandlers(){
 
   bindAction('save-job-status', ()=>{
     const job = state.modal.job;
-    const newStatus = document.getElementById('job-status-select').value;
-    if((newStatus==='done'||newStatus==='delivered') && job.status!=='done' && job.status!=='delivered'){
-      job.doneAt = Date.now();
-    }
-    if(newStatus==='waiting'||newStatus==='progress'){ job.doneAt = null; }
-    job.status = newStatus;
-    job.description = document.getElementById('job-desc-edit').value.trim();
-    job.mechanic = document.getElementById('job-mechanic-edit').value.trim();
-    job.internalNote = document.getElementById('job-note-edit').value.trim();
-    const bayEl = document.getElementById('job-bay-edit');
-    if(bayEl) job.bayId = bayEl.value || null;
+    captureJobModalEdits(job);
     queueSave();
     setState({modal:null});
     showToast(tt('Kad kerja dikemaskini.'));
@@ -1560,6 +1573,13 @@ function attachHandlers(){
   bindAllAction('job-to-pos', async el=>{
     const en = state.language==='en';
     const job = db.jobs.find(j=>j.id===el.dataset.id);
+    // Persist whatever's currently in the modal's fields (description,
+    // mechanic, notes, status, bay) -- this button sits right next to
+    // "Simpan" and is the more natural next step after filling in a job
+    // description, so it must not silently drop that edit. See
+    // captureJobModalEdits for why this matters for the AI suggestion below.
+    captureJobModalEdits(job);
+    queueSave();
     // Jumping straight to a different job's invoice while a still-empty
     // draft from a PREVIOUS "Hantar ke POS" is sitting untouched -- drop
     // that one rather than leaving it behind every time this happens.
