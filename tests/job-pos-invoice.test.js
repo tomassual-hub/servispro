@@ -84,6 +84,7 @@ async function run(){
   await clickInPage(pageA, `[data-action="job-to-pos"][data-id="${jobId}"]`);
   await pageA.waitForTimeout(400);
   r.check('description edited just before "Hantar ke POS" (no Simpan click) still persists', await pageA.evaluate(id => db.jobs.find(j=>j.id===id)?.description, jobId), 'JPI test job EDITED');
+  r.checkTrue('job description shown automatically in Troli & Invois (no AI button needed)', await pageA.evaluate(() => document.querySelector('.pos-wrap')?.innerText.includes('JPI test job EDITED')));
   await pageA.click(`[data-action="add-to-cart"][data-id="${itemId}"]`);
   await pageA.waitForTimeout(300);
   await pageA.click('[data-action="checkout"]');

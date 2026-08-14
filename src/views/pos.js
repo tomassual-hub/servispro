@@ -141,6 +141,20 @@ function viewPOS(){
         return `<div style="font-size:11.5px;color:var(--text-muted);margin-bottom:14px;">${visits}/${threshold} ${state.language==='en'?'visits to loyalty discount':'lawatan ke diskaun setia'}</div>`;
       })()}` : ''}
 
+      ${state.posJobId ? (()=>{
+        // Straight pass-through of the job card's own "Penerangan Kerja"
+        // text -- no AI involved, shown unconditionally the moment a job is
+        // linked into POS, so it's not gated behind pressing "Cadangan AI"
+        // (that button only suggests inventory ITEMS from this same text,
+        // it was never meant to be how the description itself gets seen).
+        const posJob = db.jobs.find(j=>j.id===state.posJobId);
+        if(!posJob || !(posJob.description||'').trim()) return '';
+        return `<div class="field">
+          <label>${state.language==='en'?'Job Description':'Penerangan Kerja'}</label>
+          <div style="font-size:12.5px;background:var(--panel-2,rgba(0,0,0,.03));border:1px solid var(--border);border-radius:8px;padding:10px 12px;white-space:pre-wrap;">${esc(posJob.description)}</div>
+        </div>`;
+      })() : ''}
+
       ${state.posJobId ? renderAiQuoteSuggestionBox() : ''}
 
       <div style="margin:14px 0;">

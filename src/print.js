@@ -104,6 +104,7 @@ function printQuotation(q){
 function printInvoice(inv){
   const c = getCustomer(inv.customerId);
   const v = getVehicle(inv.vehicleId);
+  const job = inv.jobId ? db.jobs.find(j=>j.id===inv.jobId) : null;
   const s = db.settings;
   const en = state.language==='en';
   // Malaysian SST regulations require the document to be titled "Tax
@@ -138,6 +139,11 @@ function printInvoice(inv){
         ${c && c.phone ? `<div class="pi-addr">${esc(c.phone)}</div>` : ''}
         ${v ? `<div class="pi-addr">${esc(v.plate)} — ${esc(v.model||'')}</div>` : ''}
       </div>
+      ${job && (job.description||'').trim() ? `
+      <div style="margin:10px 0;">
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#999;">${en?'Job Description':'Penerangan Kerja'}</div>
+        <div style="font-size:12.5px;white-space:pre-wrap;">${esc(job.description)}</div>
+      </div>` : ''}
       <div class="table-wrap"><table>
         <thead><tr><th>${state.language==='en'?'Description':'Perkara'}</th><th style="text-align:center;">${state.language==='en'?'Qty':'Kuantiti'}</th><th style="text-align:right;">${state.language==='en'?'Unit Price':'Harga Seunit'}</th><th style="text-align:right;">${state.language==='en'?'Amount':'Jumlah'}</th></tr></thead>
         <tbody>
