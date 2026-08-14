@@ -47,6 +47,8 @@ function captureJobModalEdits(job){
   job.description = descEl.value.trim();
   job.mechanic = document.getElementById('job-mechanic-edit').value.trim();
   job.internalNote = document.getElementById('job-note-edit').value.trim();
+  const priceEl = document.getElementById('job-price-edit');
+  if(priceEl) job.estimatedPrice = Number(priceEl.value)||0;
   const bayEl = document.getElementById('job-bay-edit');
   if(bayEl) job.bayId = bayEl.value || null;
 }
@@ -1411,6 +1413,7 @@ function attachHandlers(){
     let customerId = document.getElementById('nj-customer').value;
     let vehicleId = document.getElementById('nj-vehicle') ? document.getElementById('nj-vehicle').value : '';
     const desc = document.getElementById('nj-desc').value.trim();
+    const estimatedPrice = Number(document.getElementById('nj-price').value)||0;
     const mechanic = document.getElementById('nj-mechanic').value.trim();
     const bayEl = document.getElementById('nj-bay');
     const bayId = bayEl && bayEl.value ? bayEl.value : null;
@@ -1438,7 +1441,7 @@ function attachHandlers(){
       // handleAuthenticated), but stay defensive here too rather than
       // crash on db.branches[0].id if it's ever empty when this runs.
       const fallbackBranchId = (db.branches && db.branches[0]) ? db.branches[0].id : 'main';
-      const job = {id:uid(), jobNo, customerId, vehicleId, description:desc, mechanic, status:'waiting', items:[], createdAt:Date.now(), invoiced:false, createdBy: state.currentStaff ? state.currentStaff.name : '', internalNote:'', doneAt:null, photos:[], branchId: state.currentBranch!=='all' ? state.currentBranch : fallbackBranchId, bayId};
+      const job = {id:uid(), jobNo, customerId, vehicleId, description:desc, estimatedPrice, mechanic, status:'waiting', items:[], createdAt:Date.now(), invoiced:false, createdBy: state.currentStaff ? state.currentStaff.name : '', internalNote:'', doneAt:null, photos:[], branchId: state.currentBranch!=='all' ? state.currentBranch : fallbackBranchId, bayId};
       db.jobs.push(job);
       queueSave();
       setState({modal:null, view:'jobs'});
@@ -1595,6 +1598,16 @@ function attachHandlers(){
     state.posVehicleId = job.vehicleId;
     state.posJobId = job.id;
     state.posCart = [];
+    // Straight pass-through, same reasoning as the description display in
+    // pos.js -- a mechanic who already typed an estimated price on the job
+    // card shouldn't have to re-enter it as a custom cart item by hand. No
+    // AI, no inventory match required: one cart line, the job's own
+    // description as its name (so it reads the same on the printed invoice
+    // as it did on the job card) and the typed price, editable/removable
+    // like any other cart row afterward.
+    if(job.estimatedPrice>0){
+      state.posCart.push({refId:null, name: job.description || (en?'Job work':'Kerja servis'), price: job.estimatedPrice, qty:1});
+    }
     state.aiQuoteSuggestion = null; // fresh each time -- never carry a previous job's suggestion into this one
     setState({modal:null, view:'pos'});
     // Auto-run the AI item suggestion right away (silent -- no "nothing to

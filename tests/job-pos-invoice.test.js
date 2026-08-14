@@ -81,10 +81,13 @@ async function run(){
   // used to read job.description straight from db.jobs without ever writing
   // back the modal's #job-desc-edit textarea first.
   await pageA.fill('#job-desc-edit', 'JPI test job EDITED');
+  await pageA.fill('#job-price-edit', '10');
   await clickInPage(pageA, `[data-action="job-to-pos"][data-id="${jobId}"]`);
   await pageA.waitForTimeout(400);
   r.check('description edited just before "Hantar ke POS" (no Simpan click) still persists', await pageA.evaluate(id => db.jobs.find(j=>j.id===id)?.description, jobId), 'JPI test job EDITED');
+  r.check('estimated price edited just before "Hantar ke POS" still persists', await pageA.evaluate(id => db.jobs.find(j=>j.id===id)?.estimatedPrice, jobId), 10);
   r.checkTrue('job description shown automatically in Troli & Invois (no AI button needed)', await pageA.evaluate(() => document.querySelector('.pos-wrap')?.innerText.includes('JPI test job EDITED')));
+  r.checkTrue('estimated price auto-added as a cart item (no button press needed)', await pageA.evaluate(() => state.posCart.some(c=>c.name==='JPI test job EDITED' && c.price===10)));
   await pageA.click(`[data-action="add-to-cart"][data-id="${itemId}"]`);
   await pageA.waitForTimeout(300);
   await pageA.click('[data-action="checkout"]');
@@ -101,7 +104,7 @@ async function run(){
     return { invoiceJobId: inv?.jobId, invoiceTotal: inv?.total, jobInvoiced: job?.invoiced, jobStatus: job?.status, itemQty: item?.qty, custVisits: cust?.visits };
   }, jobId);
   r.check('invoice linked to the correct job', result.invoiceJobId, jobId);
-  r.check('invoice total correct (1x RM25)', result.invoiceTotal, 25);
+  r.check('invoice total correct (1x RM25 item + RM10 estimated price)', result.invoiceTotal, 35);
   r.checkTrue('job marked invoiced', result.jobInvoiced);
   r.check('job status auto-advances to delivered', result.jobStatus, 'delivered');
   r.check('inventory qty deducted (10-1=9)', result.itemQty, 9);

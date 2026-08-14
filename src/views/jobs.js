@@ -167,6 +167,9 @@ function jobDetailModalHTML(j){
       <div style="font-size:12.5px;color:var(--text-muted);">${v?esc(v.model)+' · '+esc(v.color):'—'}</div>
     </div>
     <div class="field"><label style="display:flex;justify-content:space-between;align-items:center;"><span>${en?'Job Description':'Penerangan Kerja'}</span>${voiceInputBtnHTML('job-desc-edit')}</label><textarea id="job-desc-edit" rows="2">${esc(j.description||'')}</textarea></div>
+    <div class="field"><label>${en?'Estimated Price (RM)':'Harga Anggaran (RM)'}</label><input id="job-price-edit" type="number" min="0" step="0.01" placeholder="0.00" value="${j.estimatedPrice?j.estimatedPrice:''}">
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${en?'Auto-added as one cart item when sent to POS -- adjust/add more items there as usual.':'Ditambah automatik sebagai satu item troli bila dihantar ke POS -- boleh laras/tambah item lain di sana seperti biasa.'}</div>
+    </div>
     <div class="field"><label>${tt('Mekanik')}</label><input id="job-mechanic-edit" value="${esc(j.mechanic||'')}"></div>
     ${!db.settings.simpleMode && (db.bays||[]).length>0 ? `
     <div class="field"><label>${ICONS.bay} ${en?'Bay':'Bay'}</label>
@@ -247,6 +250,7 @@ function newJobModalHTML(){
       </div>
     </div>
     <div class="field"><label style="display:flex;justify-content:space-between;align-items:center;"><span>${state.language==='en'?'Job Description':'Penerangan Kerja'}</span>${voiceInputBtnHTML('nj-desc')}</label><textarea id="nj-desc" rows="3" placeholder="${state.language==='en'?'e.g. Regular service, engine oil & filter change':'Cth: Servis biasa, tukar minyak enjin & penapis'}"></textarea></div>
+    <div class="field"><label>${state.language==='en'?'Estimated Price (RM, optional)':'Harga Anggaran (RM, pilihan)'}</label><input id="nj-price" type="number" min="0" step="0.01" placeholder="0.00"></div>
     <div class="field"><label>${state.language==='en'?'Assigned Mechanic':'Mekanik Bertugas'}</label><input id="nj-mechanic" placeholder="${state.language==='en'?'e.g. Mr. Razak':'Cth: Encik Razak'}"></div>
     ${!db.settings.simpleMode && (db.bays||[]).length>0 ? `
     <div class="field"><label>${ICONS.bay} ${state.language==='en'?'Bay (optional)':'Bay (pilihan)'}</label>
