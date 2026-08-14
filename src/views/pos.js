@@ -240,7 +240,7 @@ function viewPOS(){
     <h2>${ICONS.gauge} ${tt('Tutup Kunci Tunai Harian')}</h2>
     ${(()=>{
       const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-      const todayCash = db.invoices.filter(inv=>!inv.draft && inv.createdAt>=todayStart.getTime()).reduce((s,i)=>s+invoiceCashAmount(i),0);
+      const todayCash = todaysCashCollected(todayStart.getTime());
       const alreadyClosed = db.cashClosures.find(cc=>cc.date===localDateStr(todayStart));
       if(alreadyClosed){
         const variance = alreadyClosed.actual - alreadyClosed.expected;

@@ -19,11 +19,42 @@ function fmtRM(n){ return 'RM ' + (Number(n)||0).toFixed(2); }
 // reconciliation must only count the CASH portion actually collected, not
 // the invoice's full total. Single-payment invoices (the common case, no
 // .payments array) fall back to the original payment==='Tunai' check.
-// Used by both the daily cash-closing panel and the close-cash handler so
-// they can never drift into disagreeing about "today's cash sales".
+// Total cash ever collected on this ONE invoice, with no notion of when --
+// see todaysCashCollected() below for the date-aware version the daily
+// cash-closing panel actually needs.
 function invoiceCashAmount(inv){
   if(inv.payments && inv.payments.length) return inv.payments.filter(p=>p.method==='Tunai').reduce((s,p)=>s+p.amount,0);
   return inv.payment==='Tunai' ? inv.total : 0;
+}
+// Cash actually collected within [dayStartMs, dayStartMs+24h) -- NOT "cash
+// sales from invoices created today". Those used to be treated as the same
+// thing (filter db.invoices by createdAt, then invoiceCashAmount() the
+// whole invoice), which silently dropped any cash collected TODAY on an
+// invoice created on an earlier day (e.g. a deposit-only sale whose
+// customer pays off the balance in cash a week later via
+// confirm-settle-balance) out of every day's reconciliation forever -- the
+// drawer would show an unexplained surplus with no way to trace it back
+// through the app. Walks every non-draft invoice's own payments[] (falling
+// back to the invoice's createdAt for a payment with no .at of its own --
+// true for every payment recorded before this fix existed, and for the
+// common single-payment case, which is only ever paid at checkout anyway)
+// instead of trusting the invoice's own date.
+function todaysCashCollected(dayStartMs){
+  const dayEndMs = dayStartMs + 24*60*60*1000;
+  let total = 0;
+  (db.invoices||[]).forEach(inv=>{
+    if(inv.draft) return;
+    if(inv.payments && inv.payments.length){
+      inv.payments.forEach(p=>{
+        if(p.method!=='Tunai') return;
+        const at = p.at!=null ? p.at : inv.createdAt;
+        if(at>=dayStartMs && at<dayEndMs) total += p.amount;
+      });
+    } else if(inv.payment==='Tunai' && inv.createdAt>=dayStartMs && inv.createdAt<dayEndMs){
+      total += inv.total;
+    }
+  });
+  return total;
 }
 function invoiceAmountPaid(inv){
   if(inv.payments && inv.payments.length) return inv.payments.reduce((s,p)=>s+p.amount,0);

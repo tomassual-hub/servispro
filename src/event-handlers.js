@@ -1863,7 +1863,7 @@ function attachHandlers(){
     if(isNaN(actual)){ showToast(tt('Sila masukkan jumlah tunai.')); return; }
     const todayStart = new Date(); todayStart.setHours(0,0,0,0);
     const dateStr = localDateStr(todayStart);
-    const expected = db.invoices.filter(inv=>!inv.draft && inv.createdAt>=todayStart.getTime()).reduce((s,i)=>s+invoiceCashAmount(i),0);
+    const expected = todaysCashCollected(todayStart.getTime());
     db.cashClosures.push({id:uid(), date:dateStr, expected, actual, closedBy: state.currentStaff?state.currentStaff.name:'', closedAt:Date.now()});
     logAudit('Tutup Kunci Tunai', dateStr+': jangka '+fmtRM(expected)+' vs sebenar '+fmtRM(actual));
     queueSave();
@@ -2122,8 +2122,15 @@ function attachHandlers(){
     const balance = invoiceBalanceDue(invoice);
     const amount = Math.min(balance, Math.max(0, Number(document.getElementById('settle-amount').value)||0));
     if(amount<=0){ showToast(en?'Enter an amount to record.':'Masukkan jumlah untuk direkod.'); return; }
-    if(!invoice.payments) invoice.payments = [{method: invoice.payment, amount: invoice.total-balance}];
-    invoice.payments.push({method, amount});
+    // `at` marks when THIS payment actually happened -- a balance settled
+    // today on an invoice created days ago must count toward TODAY's cash
+    // reconciliation (see todaysCashCollected in utils.js), not silently
+    // vanish because the invoice itself falls outside "today". The
+    // backfilled first entry keeps its true original timestamp
+    // (invoice.createdAt), not now, since that portion was actually paid
+    // at checkout, not this moment.
+    if(!invoice.payments) invoice.payments = [{method: invoice.payment, amount: invoice.total-balance, at: invoice.createdAt}];
+    invoice.payments.push({method, amount, at: Date.now()});
     invoice.payment = invoice.payments.length>1 ? (en?'Split':'Berbilang') : invoice.payments[0].method;
     logAudit('Rekod Bayaran Baki', invoice.invoiceNo+' — '+fmtRM(amount));
     queueSave();

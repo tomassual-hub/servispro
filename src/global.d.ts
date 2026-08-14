@@ -86,7 +86,7 @@ interface Package {
   active: boolean;
 }
 
-interface InvoicePayment { method: string; amount: number; }
+interface InvoicePayment { method: string; amount: number; at?: number; }
 interface Invoice {
   id: string;
   invoiceNo: string;
@@ -510,6 +510,7 @@ declare function uid(): string;
 declare function esc(s: any): string;
 declare function fmtRM(n: number): string;
 declare function invoiceCashAmount(inv: Invoice): number;
+declare function todaysCashCollected(dayStartMs: number): number;
 declare function invoiceAmountPaid(inv: Invoice): number;
 declare function invoiceBalanceDue(inv: Invoice): number;
 declare function creditNotesForInvoice(invoiceId: string): CreditNote[];
