@@ -87,33 +87,46 @@ html[data-theme="light"]{
 html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 body{
   margin:0;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;transition:background-color .25s ease,color .25s ease;
-  /* Glass only reads as glass when there's something colorful behind it to
-     diffuse — a flat dark/light backdrop makes blur invisible. Several
-     saturated, generously-sized blobs give every panel something to catch. */
+  background:var(--bg);
+  font-variant-numeric: tabular-nums;
+  position:relative;
+}
+/* Glass only reads as glass when there's something colorful behind it to
+   diffuse — a flat dark/light backdrop makes blur invisible. Several
+   saturated, generously-sized blobs give every panel something to catch.
+   Lives on its own fixed-position pseudo-element (inset:0, not scrolled)
+   rather than as body's own background-attachment:fixed -- iOS Safari has
+   a long-standing bug where position:sticky descendants (the dashboard
+   hero banner, the topbar) stop tracking scroll correctly on a page whose
+   body uses background-attachment:fixed, confirmed on a real device: the
+   sticky element visibly lagged further behind the top edge the more you
+   scrolled, exactly this bug's signature. A position:fixed pseudo-element
+   achieves the same "background never scrolls" look through a completely
+   different rendering path that doesn't trip that bug. */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
     radial-gradient(1100px 680px at 4% -10%, rgba(242,167,59,.42), transparent 60%),
     radial-gradient(900px 620px at 98% 2%, rgba(232,98,44,.34), transparent 58%),
     radial-gradient(820px 580px at 20% 96%, rgba(124,179,224,.24), transparent 58%),
     radial-gradient(740px 520px at 84% 90%, rgba(79,165,121,.20), transparent 55%),
-    radial-gradient(1200px 800px at 50% 40%, rgba(242,167,59,.10), transparent 65%),
-    var(--bg);
-  background-attachment:fixed;
-  font-variant-numeric: tabular-nums;
-  position:relative;
+    radial-gradient(1200px 800px at 50% 40%, rgba(242,167,59,.10), transparent 65%);
 }
-html[data-theme="light"] body{
+html[data-theme="light"] body::after{
   background:
     radial-gradient(1100px 680px at 4% -10%, rgba(242,167,59,.38), transparent 60%),
     radial-gradient(900px 620px at 98% 2%, rgba(232,98,44,.26), transparent 58%),
     radial-gradient(820px 580px at 20% 96%, rgba(124,179,224,.24), transparent 58%),
     radial-gradient(740px 520px at 84% 90%, rgba(79,165,121,.21), transparent 55%),
-    radial-gradient(1200px 800px at 50% 40%, rgba(242,167,59,.09), transparent 65%),
-    var(--bg);
-  background-attachment:fixed;
+    radial-gradient(1200px 800px at 50% 40%, rgba(242,167,59,.09), transparent 65%);
 }
 /* Subtle film-grain — the texture that separates a "flat CSS box" feel from
    a considered surface. Kept extremely faint (opacity .025) so it reads as
-   material, not decoration; screen/soft-light blend so it never muddies text. */
+   material, not decoration; screen/soft-light blend so it never muddies text.
+   Separate pseudo-element from the gradient above (its own opacity/blend
+   mode would otherwise wash out the gradient's own colors if merged into
+   one layer -- z-index:1 keeps it painted just above the gradient at
+   z-index:0, both still well behind .app's z-index:2 real content). */
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
