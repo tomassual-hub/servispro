@@ -252,30 +252,28 @@ body::before{
   .topbar h1{font-size:17px;}
   .topbar .date{display:none;}
   .content{padding:16px 16px 108px;}
-  /* .dash-hero/.dash-target-panel/.dash-quickstats move to the very top of
-     the dashboard on mobile (order:-3/-2/-1 inside this flex wrapper) as one
-     grouped "today at a glance" block -- mirrors a reference mobile layout
-     the user shared where the product's own branded banner, its sales
-     target rings and its quick stat tiles all sit together above everything
-     else, rather than the hero floating alone with the rings and stats
-     buried further down the page. Not theme-conditional, same reasoning as
-     the login screen: this banner has its own fixed dark backdrop regardless
-     of state.theme, so its text colors are hardcoded to match rather than
-     pulling from the (possibly light-mode) --text tokens .stat-label/
-     .stat-sub normally resolve to.
-     flex-shrink:0 on all three -- .dashboard-view is a flex column, and the
-     default flex-shrink:1 lets a flex item's reserved layout box shrink
-     below its actual content height if the container ever ends up height-
-     constrained. A user screenshot showed exactly that on iOS Safari (not
-     reproducible in desktop testing): .dash-target-panel's box started well
-     inside where the sticky .dash-hero above it should still be reserving
-     space, so its content visibly sat on top of the hero's. These are
-     summary cards, never meant to compress below their own content in the
-     first place, so flex-shrink:0 is correct regardless of whether this was
-     the exact mechanism. */
+  /* .dash-hero is now rendered as a plain sibling BEFORE .dashboard-view in
+     the DOM (see viewDashboard() in dashboard.js) rather than as a flex
+     item inside it reordered via `order` -- three rounds of iOS Safari bug
+     reports against the previous flex-item version (not sticky at all,
+     then painting over/under following content, then a real screenshot
+     showing .dash-target-panel's box starting INSIDE this hero's still-
+     reserved space) all trace back to the same root cause once actually
+     compared side by side: `position:sticky` on a reordered flex item is a
+     known problem area in Safari specifically (space reservation for
+     sticky flex items doesn't reliably match what's painted once `order`
+     moves it away from its source position). .topbar/.sidebar elsewhere in
+     this app use the exact same sticky mechanism as a plain block-level
+     child of a non-flex container and have never had this reported --
+     moving .dash-hero to that same simple shape sidesteps the flex-specific
+     bug entirely instead of chasing its individual symptoms one at a time.
+     .dashboard-view keeps display:flex for its OWN remaining children
+     (the dismissible "what's new" banner reordered above .dash-target-panel/
+     .dash-quickstats below) since none of those are position:sticky and
+     were never implicated in any of the three reports. */
   .dashboard-view{display:flex;flex-direction:column;}
   .dash-hero{
-    order:-3;text-align:left;flex-shrink:0;
+    text-align:left;
     background:linear-gradient(135deg, #1c130a, #0d0906 65%, #030201);
     border-color:rgba(242,167,59,.28);
     /* Full-bleed: break out of .content's side padding so the banner runs
@@ -312,19 +310,10 @@ body::before{
      reports position:sticky. Doesn't cost anything visually here since the
      mobile hero already paints its own opaque gradient background above
      (line ~256) rather than relying on the glass-blur-over-content look
-     the desktop/other panels use.
-     NOTE: a transform:translateZ(0) "promote to GPU layer" was tried here
-     for a follow-up report (content briefly painting over this hero on
-     scroll-up) and REMOVED again -- a real screenshot from the user
-     afterward showed .dash-target-panel's box starting well inside where
-     this hero should still occupy space, i.e. the *reserved layout height*
-     for a sticky flex item no longer matched what actually painted, not
-     just a z-index/paint-order glitch. That's a documented WebKit bug:
-     applying `transform` to a position:sticky element can make Safari stop
-     reserving its normal-flow space for following siblings, even though it
-     keeps rendering (and z-index-winning) at its stuck position -- exactly
-     this symptom. Don't reapply that fix without solving the space-
-     reservation regression it causes. */
+     the desktop/other panels use. transform:translateZ(0) and flex-shrink:0
+     were both tried and removed here too -- neither fixed the space-
+     reservation bug described above; moving this element out of the flex
+     container entirely (see the comment above .dashboard-view) is the fix. */
   .panel.dash-hero{border-radius:0;position:sticky;top:0;z-index:5;backdrop-filter:none;-webkit-backdrop-filter:none;}
   /* clamp() with a vw-based preferred size, not a fixed px guess -- this
      media query alone covers everything from a ~320px small phone up to
