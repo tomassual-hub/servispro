@@ -277,8 +277,20 @@ body::before{
      silently resolving to relative instead of sticky. Same z-index as
      .topbar below (they never actually compete -- .topbar collapses to 0
      height whenever this hero is showing, see [data-hero-notif] further
-     down), so this becomes the page's sticky header in its place. */
-  .panel.dash-hero{border-radius:0;position:sticky;top:0;z-index:5;}
+     down), so this becomes the page's sticky header in its place.
+     backdrop-filter dropped here too (still inherited by every other
+     .panel, just cancelled on this one) -- backdrop-filter + position:sticky
+     on the same element is a known compositing trap on Android's Chromium
+     WebView (the exact surface this app ships in as a TWA, see
+     build/build-android.js): the browser computes the sticky offset
+     correctly but the blurred layer's paint doesn't reliably repaint on
+     scroll on some WebView builds, so the banner visually drags along with
+     the page instead of staying pinned, even though getComputedStyle still
+     reports position:sticky. Doesn't cost anything visually here since the
+     mobile hero already paints its own opaque gradient background above
+     (line ~256) rather than relying on the glass-blur-over-content look
+     the desktop/other panels use. */
+  .panel.dash-hero{border-radius:0;position:sticky;top:0;z-index:5;backdrop-filter:none;-webkit-backdrop-filter:none;}
   /* clamp() with a vw-based preferred size, not a fixed px guess -- this
      media query alone covers everything from a ~320px small phone up to
      an 880px tablet, and a fixed size that fits a 390px screen edge-to-
