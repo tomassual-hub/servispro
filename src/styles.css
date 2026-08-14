@@ -302,8 +302,18 @@ body::before{
      reports position:sticky. Doesn't cost anything visually here since the
      mobile hero already paints its own opaque gradient background above
      (line ~256) rather than relying on the glass-blur-over-content look
-     the desktop/other panels use. */
-  .panel.dash-hero{border-radius:0;position:sticky;top:0;z-index:5;backdrop-filter:none;-webkit-backdrop-filter:none;}
+     the desktop/other panels use.
+     transform:translateZ(0) added for a second, separate iOS Safari bug
+     reported after the background-attachment fix above: scrolling back UP
+     (not down) could briefly paint the panels below this hero ON TOP of
+     it, i.e. z-index:5 losing to unpositioned normal-flow siblings that
+     have no z-index of their own -- something CSS's stacking rules don't
+     allow, so this was Safari's own compositor picking the wrong paint
+     order for a sticky layer specifically during scroll-direction
+     reversal, not a stylesheet bug. Promoting this element to its own
+     GPU layer (the standard fix for this WebKit quirk) keeps it on a
+     stable compositing layer instead of one Safari recomputes mid-scroll. */
+  .panel.dash-hero{border-radius:0;position:sticky;top:0;z-index:5;backdrop-filter:none;-webkit-backdrop-filter:none;transform:translateZ(0);-webkit-transform:translateZ(0);}
   /* clamp() with a vw-based preferred size, not a fixed px guess -- this
      media query alone covers everything from a ~320px small phone up to
      an 880px tablet, and a fixed size that fits a 390px screen edge-to-
