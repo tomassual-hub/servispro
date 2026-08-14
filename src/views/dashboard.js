@@ -1,15 +1,44 @@
 /* ============================= DASHBOARD ============================= */
+// Rendered by render() in render-core.js as a sibling of .content (inside
+// .main, same level as .topbar) -- NOT as part of viewDashboard()'s own
+// output anymore. Three rounds of iOS Safari sticky-positioning bug
+// reports against this banner persisted even after it was made a plain,
+// non-flex sticky element (previously it lived inside .content, using
+// negative margins to break out of .content's own padding for its full-
+// bleed edge-to-edge look -- .topbar, which has NEVER had a sticky bug
+// reported against it, has no such margin trick and no such wrapping
+// padding to escape in the first place). Moving this here removes that
+// remaining structural difference entirely: like .topbar, it's now a
+// direct, unpadded child of .main with nothing to break out of.
+function renderDashboardHero(){
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const branchFilter = rec => state.currentBranch==='all' || rec.branchId===state.currentBranch || (!rec.branchId && state.currentBranch==='main');
+  // "!inv.draft" -- an invoice auto-created empty when a job is sent to POS
+  // (see job-to-pos in event-handlers.js) isn't a real sale yet, and
+  // shouldn't count toward today's sales stat until actually finalized.
+  const todaysInvoices = db.invoices.filter(inv=>!inv.draft && inv.createdAt>=todayStart.getTime() && branchFilter(inv));
+  const todaySales = todaysInvoices.reduce((s,i)=>s+i.total,0);
+  return `
+  <div class="panel dash-hero" style="margin-bottom:22px;">
+    <div class="dash-hero-icon-row">
+      ${renderSupportChatButton('hero-chat')}
+      ${renderNotifBell('hero-notif')}
+    </div>
+    <div class="dash-hero-brand">ServisPro</div>
+    <div class="stat-label">${esc(db.settings.shopName)} · ${t('stat_today_sales')}</div>
+    <div class="dash-hero-value">${fmtRM(todaySales)}</div>
+    <div class="stat-sub">${todaysInvoices.length} ${tt('invois dikeluarkan')}</div>
+  </div>`;
+}
+
 function viewDashboard(){
   const en = state.language==='en';
-  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
   const todayStr = localDateStr();
   const branchFilter = rec => state.currentBranch==='all' || rec.branchId===state.currentBranch || (!rec.branchId && state.currentBranch==='main');
   // "!inv.draft" everywhere in this file -- an invoice auto-created empty
   // when a job is sent to POS (see job-to-pos in event-handlers.js) isn't
   // a real sale yet, and shouldn't count toward today's sales/unit stats
   // or target progress until it's actually finalized at checkout.
-  const todaysInvoices = db.invoices.filter(inv=>!inv.draft && inv.createdAt>=todayStart.getTime() && branchFilter(inv));
-  const todaySales = todaysInvoices.reduce((s,i)=>s+i.total,0);
   const activeJobs = db.jobs.filter(j=>j.status!=='delivered' && branchFilter(j));
   const lowStock = db.inventory.filter(i=>i.qty<=i.lowStock);
   // Sales figures (today's total, recent invoice amounts) are Admin-only —
@@ -25,17 +54,6 @@ function viewDashboard(){
   }).length;
 
   return `
-  ${isAdmin ? `
-  <div class="panel dash-hero" style="margin-bottom:22px;">
-    <div class="dash-hero-icon-row">
-      ${renderSupportChatButton('hero-chat')}
-      ${renderNotifBell('hero-notif')}
-    </div>
-    <div class="dash-hero-brand">ServisPro</div>
-    <div class="stat-label">${esc(db.settings.shopName)} · ${t('stat_today_sales')}</div>
-    <div class="dash-hero-value">${fmtRM(todaySales)}</div>
-    <div class="stat-sub">${todaysInvoices.length} ${tt('invois dikeluarkan')}</div>
-  </div>` : ''}
   <div class="dashboard-view">
   ${state.showWhatsNew ? `
   <div class="panel" style="margin-bottom:16px;display:flex;align-items:center;gap:12px;background:var(--accent-soft);border-color:var(--accent);">

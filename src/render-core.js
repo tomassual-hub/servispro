@@ -164,6 +164,7 @@ function render(){
       <div class="sidebar-backdrop ${state.navOpen?'show':''}" data-action="close-nav"></div>
       <div class="main" data-hero-notif="${heroReplacesTopbar?1:0}">
         ${renderTopbar()}
+        ${heroReplacesTopbar ? renderDashboardHero() : ''}
         ${renderSyncErrorBanner()}
         <div class="content">${renderView()}</div>
       </div>

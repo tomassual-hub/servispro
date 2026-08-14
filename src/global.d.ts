@@ -569,6 +569,7 @@ declare function makeClickablesFocusable(): void;
 declare function initApp(): Promise<void>;
 
 // ---- View / modal HTML generators (each returns an HTML string) ----
+declare function renderDashboardHero(): string;
 declare function viewDashboard(): string;
 declare function viewJobs(): string;
 declare function viewPOS(): string;
