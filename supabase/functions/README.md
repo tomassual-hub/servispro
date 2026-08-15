@@ -203,3 +203,33 @@ Until at least one of `GEMINI_API_KEY`/`GROQ_API_KEY` is set, this returns
 `{ error: "not_configured" }` and the button in POS shows "AI suggestion
 isn't available right now" instead of a suggestion — nothing else about
 POS changes.
+
+## admin-manage-staff-account
+
+Lets an Admin/Pemilik set a staff member's login email and/or password
+directly (see the "Reset Password" / "Set a Password" field on the staff
+edit modal, `src/views/staff.js`) — the client-side app has no way to
+change ANOTHER user's Auth credentials on its own; that needs
+`auth.admin.*`, which only works with the service-role key. Two cases:
+a staff row already linked to a real login gets that login's
+email/password updated in place (no confirmation email, effective
+immediately); an unlinked one gets a brand-new Auth account created and
+linked outright, so the staff member can sign in right away instead of
+waiting to self-signup via "New staff? Create an account".
+
+### Deploy
+
+Same as the others — Dashboard → Edge Functions → Deploy a new function →
+name it exactly `admin-manage-staff-account` → paste
+`admin-manage-staff-account/index.ts`.
+
+### Secrets
+
+None beyond the auto-provided `SUPABASE_URL` / `SUPABASE_ANON_KEY` /
+`SUPABASE_SERVICE_ROLE_KEY` — unlike the AI functions above, there's no
+`not_configured` state here; it works as soon as it's deployed.
+
+Until deployed, the "Reset Password" / "Set a Password" button in the
+staff modal will fail with a generic "could not reach the server" toast —
+staff can still self-signup with "New staff? Create an account" from the
+login screen either way, exactly as before this function existed.

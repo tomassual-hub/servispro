@@ -145,11 +145,18 @@ function staffModalHTML(staffMember){
       <label>${en?'Login Email':'E-mel Log Masuk'}</label>
       <input id="sf-email" type="email" value="${esc(staffMember.email||'')}" placeholder="nama@contoh.com">
       <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${en
-        ? (staffMember.userId ? 'Linked to a login account.' : 'Not linked yet — tell them to open the app and tap "New staff? Create an account" using this exact email.')
-        : (staffMember.userId ? 'Sudah ditautkan dengan akaun log masuk.' : 'Belum ditautkan — minta mereka buka aplikasi dan tekan "Staf baharu? Daftar akaun" menggunakan e-mel yang sama ini.')}</div>
+        ? (staffMember.userId ? 'Linked to a login account.' : (isEdit && isOwnerLevel(state.currentStaff && state.currentStaff.role) ? 'Not linked yet — set a password below to create their login account directly, or tell them to tap "New staff? Create an account" using this exact email.' : 'Not linked yet — tell them to open the app and tap "New staff? Create an account" using this exact email.'))
+        : (staffMember.userId ? 'Sudah ditautkan dengan akaun log masuk.' : (isEdit && isOwnerLevel(state.currentStaff && state.currentStaff.role) ? 'Belum ditautkan — tetapkan kata laluan di bawah untuk cipta akaun log masuk terus, atau minta mereka tekan "Staf baharu? Daftar akaun" menggunakan e-mel yang sama ini.' : 'Belum ditautkan — minta mereka buka aplikasi dan tekan "Staf baharu? Daftar akaun" menggunakan e-mel yang sama ini.'))}</div>
     </div>
     <div class="field"><label>${en?'Base Salary (RM/month)':'Gaji Pokok (RM/bulan)'}</label><input id="sf-basesalary" type="number" min="0" step="0.01" value="${staffMember.baseSalary||0}"></div>
     <div class="field"><label>${en?'Commission (% of completed job value)':'Komisen (% daripada nilai kerja disiapkan)'}</label><input id="sf-commission" type="number" min="0" max="100" value="${staffMember.commissionPercent||0}"></div>
+    ${isEdit && isOwnerLevel(state.currentStaff && state.currentStaff.role) ? `
+    <div class="field" style="margin-top:8px;padding-top:14px;border-top:1px dashed var(--border);">
+      <label>${staffMember.userId ? (en?'Reset Password':'Reset Kata Laluan') : (en?'Set a Password':'Tetapkan Kata Laluan')}</label>
+      <input id="sf-new-password" type="password" autocomplete="new-password" placeholder="${staffMember.userId ? (en?'Leave blank to keep current password':'Biar kosong untuk kekalkan kata laluan semasa') : (en?'Required to create their login now':'Diperlukan untuk cipta akaun log masuk sekarang')}">
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${en?'Takes effect immediately -- no email confirmation needed. Uses the Login Email field above.':'Berkuat kuasa serta-merta -- tiada pengesahan e-mel diperlukan. Guna medan E-mel Log Masuk di atas.'}</div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px;" data-action="admin-manage-staff-account" data-id="${staffMember.id}">${ICONS.shield} ${staffMember.userId ? (en?'Update Login Account':'Kemaskini Akaun Log Masuk') : (en?'Create Login Account Now':'Cipta Akaun Log Masuk Sekarang')}</button>
+    </div>` : ''}
     <div class="modal-foot">
       <button class="btn btn-outline" data-action="close-modal">${t('btn_cancel')}</button>
       <button class="btn btn-primary" data-action="save-staff" data-id="${staffMember.id||''}">${t('btn_save')}</button>

@@ -89,13 +89,27 @@ function renderOnboarding(){
 
 function renderConfirmModal(){
   const c = state.confirmAction;
+  const en = state.language==='en';
+  // typedConfirmWord: for actions too severe for a single click+confirm to
+  // safely gate (see 'reset-shop-data' in event-handlers.js) -- the button
+  // stays disabled until the word is typed exactly, same "type DELETE to
+  // confirm" pattern used elsewhere for irreversible, no-undo operations.
+  // Every other askConfirm() caller in this app (delete-job, delete-
+  // customer, etc.) leaves this unset and gets the plain single-step
+  // dialog as before.
+  const needsTyped = !!c.typedConfirmWord;
   return `<div class="modal-overlay" data-action="confirm-cancel"><div class="modal confirm-box" onclick="event.stopPropagation()">
     <div class="c-icon">${ICONS.alert}</div>
-    <h2 style="text-align:center;">${c.title||(state.language==='en'?'Confirm Action':'Sahkan Tindakan')}</h2>
+    <h2 style="text-align:center;">${c.title||(en?'Confirm Action':'Sahkan Tindakan')}</h2>
     <p>${c.message}</p>
+    ${needsTyped ? `
+    <div class="field">
+      <label>${en?`Type `:'Taip '}<strong>${esc(c.typedConfirmWord)}</strong>${en?' to confirm':' untuk sahkan'}</label>
+      <input id="confirm-typed-input" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>` : ''}
     <div class="modal-foot">
       <button class="btn btn-outline" data-action="confirm-cancel">${t('btn_cancel')}</button>
-      <button class="btn btn-danger" data-action="confirm-yes">${c.confirmLabel||t('btn_delete')}</button>
+      <button class="btn btn-danger" data-action="confirm-yes" ${needsTyped?'disabled':''}>${c.confirmLabel||t('btn_delete')}</button>
     </div>
   </div></div>`;
 }

@@ -169,7 +169,40 @@ function viewSettings(){
     <p style="font-size:12.5px;color:var(--text-muted);margin-top:0;">${state.language==='en'?'Launch the TV/tablet board showing active jobs\' status, without logging out first — useful for setting up or previewing the waiting-area screen. It can also still be reached without logging in at all (the login screen\'s own link, or bookmarking this site with ?board=1), which stays the normal way an always-on shop TV loads it.':'Lancarkan papan TV/tablet yang memaparkan status kad kerja aktif, tanpa perlu log keluar dahulu — berguna untuk menyediakan atau pratonton skrin kawasan menunggu. Ia masih boleh diakses tanpa log masuk (pautan pada skrin log masuk, atau bookmark laman ini dengan ?board=1), iaitu cara biasa TV bengkel yang sentiasa hidup memuatkannya.'}</p>
     <button class="btn btn-outline" data-action="open-board-in-app">${ICONS.gauge} ${state.language==='en'?'Open Display Board':'Buka Papan Paparan'}</button>
   </div>
+
+  ${isOwnerLevel(state.currentStaff && state.currentStaff.role) ? dangerZonePanelHTML() : ''}
   `;
+}
+
+// Owner-level only (Admin/Pemilik, not Kerani -- see isOwnerLevel() in
+// utils.js) -- this is more destructive than anything Kerani can already
+// do elsewhere (delete-job/delete-customer etc. all remove ONE record with
+// an undo toast; this removes every job/invoice/credit-note/cash-closure
+// row at once with no undo, so it's gated one level stricter). The confirm
+// dialog itself requires typing "PADAM" (see askConfirm's typedConfirmWord
+// in onboarding-confirm.js) rather than the single-click confirm every
+// other delete in this app uses -- a plain confirm has already proven too
+// easy to click through for something this size, with no per-item undo to
+// fall back on afterward.
+function dangerZonePanelHTML(){
+  const en = state.language==='en';
+  return `
+  <div class="panel" style="margin-top:20px;border-color:var(--danger);">
+    <h2 style="color:var(--danger);">${ICONS.alert} ${en?'Danger Zone':'Zon Bahaya'}</h2>
+    <p style="font-size:12.5px;color:var(--text-muted);margin-top:0;">${en?'Permanently wipe this shop\'s transactional history -- useful for clearing test/demo data before going live, or starting a fresh accounting period. Customers, vehicles, inventory, and staff are NOT touched.':'Padam kekal sejarah transaksi bengkel ini -- berguna untuk bersihkan data ujian/demo sebelum guna sebenar, atau mula tempoh perakaunan baharu. Pelanggan, kenderaan, inventori, dan staf TIDAK disentuh.'}</p>
+    <div style="background:rgba(225,75,75,.08);border:1px solid var(--danger);border-radius:8px;padding:12px;margin-bottom:14px;">
+      <div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">${en?'This permanently deletes:':'Ini akan memadam KEKAL:'}</div>
+      <ul style="margin:0;padding-left:18px;font-size:12px;color:var(--text-muted);line-height:1.7;">
+        <li>${en?'All job cards':'Semua kad kerja'} (${db.jobs.length})</li>
+        <li>${en?'All invoices':'Semua invois'} (${db.invoices.length})</li>
+        <li>${en?'All credit notes':'Semua nota kredit'} (${db.creditNotes.length})</li>
+        <li>${en?'All daily cash closure records':'Semua rekod tutup tunai harian'} (${db.cashClosures.length})</li>
+        <li>${en?'Monthly sales/unit targets (reset to 0)':'Sasaran jualan/unit bulanan (reset kepada 0)'}</li>
+      </ul>
+    </div>
+    <div style="font-size:11.5px;color:var(--danger);margin-bottom:12px;">⚠️ ${en?'Cannot be undone. Download a backup above first if you might need this data again.':'Tidak boleh dibuat asal. Muat turun sandaran di atas dahulu jika mungkin perlukan data ini semula.'}</div>
+    <button class="btn btn-danger" style="width:100%;justify-content:center;" data-action="reset-shop-data">${ICONS.trash} ${en?'Reset Invoice & Job Card Data':'Reset Data Invois & Kad Kerja'}</button>
+  </div>`;
 }
 
 function bayModalHTML(bay){

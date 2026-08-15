@@ -396,8 +396,26 @@ function attachHandlers(){
   const overlay = document.querySelector('[data-action="overlay-close"]');
   if(overlay) overlay.addEventListener('click', ()=>setState({modal:null}));
   document.querySelectorAll('[data-action="confirm-cancel"]').forEach(el=>el.addEventListener('click', ()=>setState({confirmAction:null})));
+  const confirmTypedInput = document.getElementById('confirm-typed-input');
+  if(confirmTypedInput){
+    // Toggles the confirm button live as the admin types -- patches the
+    // button directly rather than going through render() on every
+    // keystroke, same reasoning as the debounced search inputs elsewhere.
+    const confirmYesBtn = /** @type {HTMLButtonElement|null} */ (document.querySelector('[data-action="confirm-yes"]'));
+    confirmTypedInput.addEventListener('input', ()=>{
+      if(confirmYesBtn) confirmYesBtn.disabled = confirmTypedInput.value !== state.confirmAction.typedConfirmWord;
+    });
+  }
   bindAction('confirm-yes', ()=>{
     const action = state.confirmAction;
+    // Defense in depth against the disabled-button gate above -- only
+    // matters if something bypassed the UI (e.g. a stale re-render left
+    // the button briefly enabled), since a real click can't normally
+    // reach here with a mismatched/empty value.
+    if(action && action.typedConfirmWord){
+      const typedEl = /** @type {HTMLInputElement|null} */ (document.getElementById('confirm-typed-input'));
+      if(!typedEl || typedEl.value!==action.typedConfirmWord) return;
+    }
     state.confirmAction = null;
     if(action && action.onConfirm) action.onConfirm();
     else render();
@@ -955,6 +973,51 @@ function attachHandlers(){
       showToast(state.language==='en' ? 'Could not save this staff member. Try again.' : 'Gagal simpan staf ini. Cuba lagi.');
     }
   });
+  bindAllAction('admin-manage-staff-account', async el=>{
+    const en = state.language==='en';
+    const staffId = el.dataset.id;
+    const staffMember = db.staff.find(s=>s.id===staffId);
+    if(!staffMember) return;
+    const email = document.getElementById('sf-email').value.trim();
+    const password = document.getElementById('sf-new-password').value;
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showToast(en?'Enter a valid email.':'Masukkan e-mel yang sah.'); return; }
+    if(!staffMember.userId && !password){
+      showToast(en?'Enter a password to create their login account.':'Masukkan kata laluan untuk cipta akaun log masuk.');
+      return;
+    }
+    try{
+      const { data, error } = await supabaseClient.functions.invoke('admin-manage-staff-account', {
+        body: { staffId, email, password }
+      });
+      if(error) throw error;
+      if(!data || data.error){
+        const messages = {
+          owner_only: en?'Only Admin/Pemilik can manage staff login accounts.':'Hanya Admin/Pemilik boleh urus akaun log masuk staf.',
+          staff_not_found: en?'This staff member no longer exists.':'Staf ini tidak lagi wujud.',
+          nothing_to_update: en?'Enter a new password to reset it.':'Masukkan kata laluan baharu untuk reset.',
+          email_and_password_required: en?'Both email and password are required to create a login.':'E-mel dan kata laluan diperlukan untuk cipta log masuk.',
+          created_but_link_failed: en?'Account created but linking failed — contact support.':'Akaun dicipta tetapi pautan gagal — hubungi sokongan.',
+        };
+        const msg = messages[data && data.error] || (en?'Could not update this account. Try again.':'Gagal kemaskini akaun ini. Cuba lagi.');
+        reportError(new Error('admin-manage-staff-account: '+(data?data.error+(data.detail?' — '+data.detail:''):'empty response')), 'Urus akaun staf - respons ralat');
+        showToast(msg);
+        return;
+      }
+      const wasUnlinked = !staffMember.userId;
+      staffMember.email = email;
+      staffMember.userId = data.userId;
+      queueSave();
+      const pwEl = /** @type {HTMLInputElement} */ (document.getElementById('sf-new-password'));
+      if(pwEl) pwEl.value = '';
+      render();
+      showToast(wasUnlinked
+        ? (en?'Login account created — they can sign in now.':'Akaun log masuk dicipta — mereka boleh log masuk sekarang.')
+        : (en?'Account updated.':'Akaun dikemaskini.'));
+    }catch(e){
+      reportError(e, 'Urus akaun staf gagal');
+      showToast(en?'Could not reach the server. Try again.':'Gagal hubungi pelayan. Cuba lagi.');
+    }
+  });
 
   // Payroll
   bindAction('payroll-prev-month', ()=>{
@@ -1219,6 +1282,36 @@ function attachHandlers(){
     queueSave();
     render();
     showToast(tt('Fail sandaran dimuat turun.'));
+  });
+  bindAction('reset-shop-data', ()=>{
+    // Defense in depth -- the button itself is only ever rendered for
+    // Owner-level staff (see dangerZonePanelHTML() in settings.js), same
+    // reasoning as every other client-side role gate in this app: hides
+    // the button, doesn't replace a real server-side check (RLS still
+    // allows any staff role to delete these rows directly, same as
+    // everything else here -- see the security note wherever this repo's
+    // RLS policies are documented).
+    if(!isOwnerLevel(state.currentStaff && state.currentStaff.role)) return;
+    const en = state.language==='en';
+    askConfirm(
+      en
+        ? `This permanently deletes ${db.jobs.length} job card(s), ${db.invoices.length} invoice(s), ${db.creditNotes.length} credit note(s), and ${db.cashClosures.length} cash closure record(s), and resets the monthly sales/unit targets to 0. This cannot be undone.`
+        : `Ini akan memadam KEKAL ${db.jobs.length} kad kerja, ${db.invoices.length} invois, ${db.creditNotes.length} nota kredit, dan ${db.cashClosures.length} rekod tutup tunai, serta reset sasaran jualan/unit bulanan kepada 0. Ini tidak boleh dibuat asal.`,
+      ()=>{
+        const counts = { jobs: db.jobs.length, invoices: db.invoices.length, creditNotes: db.creditNotes.length, cashClosures: db.cashClosures.length };
+        db.jobs = [];
+        db.invoices = [];
+        db.creditNotes = [];
+        db.cashClosures = [];
+        db.settings.monthlySalesTarget = 0;
+        db.settings.monthlyUnitTarget = 0;
+        logAudit('Reset Data Kedai', `${counts.jobs} kad kerja, ${counts.invoices} invois, ${counts.creditNotes} nota kredit, ${counts.cashClosures} rekod tutup tunai dipadam; sasaran bulanan direset`);
+        queueSave();
+        render();
+        showToast(en ? 'Invoice and job card data has been reset.' : 'Data invois dan kad kerja telah direset.');
+      },
+      { typedConfirmWord: 'PADAM', confirmLabel: en?'Reset Everything':'Reset Semua' }
+    );
   });
   bindAction('list-auto-backups', async ()=>{
     try{
