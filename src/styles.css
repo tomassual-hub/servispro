@@ -750,10 +750,22 @@ tr:hover td{background:var(--glass-highlight);}
    .tab-btn/.tabs directly (not a global `*` reset) since every one of the
    9 call sites sharing this component (Jobs/Inventory/Finance/Customers/
    Reports/Staff/Appointments/login-kiosk) has the exact same scrollable-
-   row shape and was equally exposed. */
-.tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:nowrap;overflow-x:auto;background:var(--glass-2);padding:5px;border-radius:calc(var(--r-sm) + 5px);border:1px solid var(--glass-border);width:fit-content;max-width:100%;box-shadow:inset 0 1px 3px var(--shadow);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-overflow-scrolling:touch;scrollbar-width:none;-webkit-user-select:none;user-select:none;}
+   row shape and was equally exposed.
+   touch-action:pan-x added after the above alone didn't fix it on the
+   reporting user's actual device -- user-select/touch-callout/user-drag
+   only suppress the VISUAL side effects (selection highlight, callout
+   menu, drag-ghost image) of a gesture the browser already decided to
+   recognize; touch-action tells the browser up front which gestures this
+   element should even try to recognize in the first place. Without it,
+   -webkit-overflow-scrolling:touch alone doesn't stop the browser from
+   still evaluating a long-press-then-move as a competing gesture (text
+   selection, drag) before falling back to scroll. pan-x (not just `auto`)
+   since this row only ever scrolls horizontally -- matches the actual
+   scroll axis instead of leaving vertical panning/other gestures
+   ambiguous here too. */
+.tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:nowrap;overflow-x:auto;background:var(--glass-2);padding:5px;border-radius:calc(var(--r-sm) + 5px);border:1px solid var(--glass-border);width:fit-content;max-width:100%;box-shadow:inset 0 1px 3px var(--shadow);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-overflow-scrolling:touch;scrollbar-width:none;-webkit-user-select:none;user-select:none;touch-action:pan-x;}
 .tabs::-webkit-scrollbar{display:none;}
-.tab-btn{padding:8.5px 16px;border-radius:var(--r-sm);background:transparent;color:var(--text-muted);border:none;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:.1px;white-space:nowrap;flex-shrink:0;-webkit-touch-callout:none;-webkit-user-drag:none;-webkit-tap-highlight-color:transparent;}
+.tab-btn{padding:8.5px 16px;border-radius:var(--r-sm);background:transparent;color:var(--text-muted);border:none;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:.1px;white-space:nowrap;flex-shrink:0;-webkit-touch-callout:none;-webkit-user-drag:none;-webkit-tap-highlight-color:transparent;touch-action:pan-x;}
 .tab-btn:hover{color:var(--text);}
 .tab-btn.active{background:linear-gradient(135deg, var(--accent), var(--accent-2));color:var(--accent-ink);box-shadow:0 3px 10px -2px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,.3);}
 
