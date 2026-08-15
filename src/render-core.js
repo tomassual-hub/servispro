@@ -165,6 +165,7 @@ function render(){
       <div class="main" data-hero-notif="${heroReplacesTopbar?1:0}">
         ${renderTopbar()}
         ${heroReplacesTopbar ? renderDashboardHero() : ''}
+        ${heroReplacesTopbar ? '<div id="dash-hero-spacer"></div>' : ''}
         ${renderSyncErrorBanner()}
         <div class="content">${renderView()}</div>
       </div>
@@ -179,6 +180,39 @@ function render(){
   makeClickablesFocusable();
   attachHandlers();
   manageModalFocus();
+  syncDashboardHeroSpacer();
+}
+
+// .dash-hero switched from position:sticky to position:fixed on mobile
+// (see .panel.dash-hero in styles.css) after FIVE rounds of iOS Safari bug
+// reports against sticky specifically -- backdrop-filter, then
+// transform:translateZ(0), then flex-shrink/order, then moving it out of
+// the flex container, then making it structurally identical to .topbar --
+// none of which stopped .dash-target-panel's box from rendering inside
+// where the hero should still occupy space on the user's actual device,
+// despite every fix verifying correctly in every available test tool
+// (Chromium, desktop WebKit, live production HTML fetched and byte-
+// compared directly). position:fixed can't have that specific bug --
+// fixed elements never reserve flow space to begin with, on any browser,
+// so there's nothing for Safari to get wrong. The tradeoff: since fixed
+// elements reserve zero flow space, #dash-hero-spacer (rendered right
+// after the hero, see render() above) needs its height set to match the
+// hero's actual rendered height so following content starts below it
+// instead of sliding underneath -- measured fresh after every render
+// rather than hardcoded, since the hero's height responds to font-size
+// clamp()ing across screen widths and can wrap onto more lines for a
+// long shop name. Only measured on mobile (position:fixed there; desktop
+// keeps position:relative, normal flow, hero reserves its own space
+// exactly as any other panel would, so the spacer must stay 0 there).
+function syncDashboardHeroSpacer(){
+  const hero = /** @type {HTMLElement|null} */ (document.querySelector('.dash-hero'));
+  const spacer = document.getElementById('dash-hero-spacer');
+  if(!hero || !spacer) return;
+  // .content's own top padding already adds a bit of breathing room after
+  // this, so the spacer only needs to cover the hero's own box -- close
+  // enough to the hero's old margin-bottom that no extra compensation is
+  // worth the complexity here.
+  spacer.style.height = getComputedStyle(hero).position==='fixed' ? hero.offsetHeight+'px' : '0';
 }
 
 /* ---------- LOGIN ---------- */

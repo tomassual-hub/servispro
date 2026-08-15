@@ -280,43 +280,36 @@ body::before{
   /* Flat-cut, no rounding at all -- reverted back from rounded bottom
      corners per the user's own preference once the banner reached the very
      top of the screen. Compound `.panel.dash-hero` selector (both classes
-     on the same element, not `.dash-hero .panel`) rather than relying on
-     source order to beat the plain `.panel{border-radius:var(--r-lg)}`
-     rule declared later in this file -- the exact "later same-specificity
-     rule wins regardless of media query" trap already hit a few times this
-     session. Sticky lives here for the exact same reason -- the plain
-     `.dash-hero{...}` rule above lost this fight against `.panel`'s own
-     `position:relative` (equal specificity, .panel declared later in the
-     file, @media adds no specificity of its own to tip it) when tried
-     there first; confirmed via getComputedStyle in a live page that it was
-     silently resolving to relative instead of sticky. Same z-index as
-     .topbar below (they never actually compete -- .topbar collapses to 0
-     height whenever this hero is showing, see [data-hero-notif] further
-     down), so this becomes the page's sticky header in its place.
-     backdrop-filter dropped here too (still inherited by every other
-     .panel, just cancelled on this one) -- backdrop-filter + position:sticky
-     on the same element is a known compositing trap on Android's Chromium
-     WebView (the exact surface this app ships in as a TWA, see
-     build/build-android.js): the browser computes the sticky offset
-     correctly but the blurred layer's paint doesn't reliably repaint on
-     scroll on some WebView builds, so the banner visually drags along with
-     the page instead of staying pinned, even though getComputedStyle still
-     reports position:sticky. Doesn't cost anything visually here since the
-     mobile hero already paints its own opaque gradient background above
-     (line ~256) rather than relying on the glass-blur-over-content look
-     the desktop/other panels use. transform:translateZ(0) and flex-shrink:0
-     were both tried and removed here too -- neither fixed the space-
-     reservation bug described above; moving this element out of the flex
-     container entirely (see the comment above .dashboard-view) is the fix.
-     margin/max-width reset here too, for the exact same "later same-
-     specificity rule wins regardless of media query" reason as everything
-     else on this compound selector -- the plain `.dash-hero{margin:30px
-     32px 22px;max-width:1456px}` desktop rule (further down this file,
-     giving the now-un-parented hero its inset to match .content's box on
-     wide screens) is declared AFTER this media query block in source
-     order, so it would otherwise win at every viewport, mobile included,
-     leaving the hero permanently inset instead of edge-to-edge. */
-  .panel.dash-hero{border-radius:0;position:sticky;top:0;z-index:5;backdrop-filter:none;-webkit-backdrop-filter:none;margin:0;max-width:none;}
+     on the same element, not `.dash-hero .panel`) beats the plain
+     `.panel{...}` rule declared later in this file on specificity alone --
+     @media adds none of its own, so source order would otherwise decide,
+     and this rule needs to win regardless of where either happens to sit.
+     backdrop-filter dropped too (inherited by every other .panel, just
+     cancelled on this one) -- costs nothing visually since this banner
+     already paints its own opaque gradient background rather than relying
+     on the glass-blur-over-content look other panels use.
+     position:fixed, not sticky: after FIVE separate fixes targeting
+     position:sticky specifically (backdrop-filter's own compositing
+     trap, transform:translateZ(0)'s space-reservation bug, flex-shrink/
+     order, moving this element out of its flex container, then making it
+     structurally identical to .topbar) still didn't stop
+     .dash-target-panel's box from rendering inside this hero's space on
+     the reporting user's actual iOS Safari, despite every one of those
+     fixes checking out correctly in every test tool available here --
+     switching off sticky entirely removes the whole bug category: a fixed
+     element is pinned to the viewport by definition, on every browser,
+     with nothing left for any engine to get wrong about how much flow-
+     space it should still be reserving while stuck. The real tradeoff --
+     fixed elements reserve NO flow space at all, so following content
+     would otherwise render right underneath starting from y:0 -- is
+     covered by #dash-hero-spacer, sized to the hero's real measured
+     height after every render (see syncDashboardHeroSpacer() in
+     render-core.js). margin/max-width reset for the same specificity
+     reason as everything else on this selector -- the plain
+     `.dash-hero{margin:30px 32px 22px;max-width:1456px}` desktop rule
+     (giving the hero its inset to match .content's box on wide screens)
+     is declared later in this file and would otherwise win here too. */
+  .panel.dash-hero{border-radius:0;position:fixed;top:0;left:0;right:0;z-index:5;backdrop-filter:none;-webkit-backdrop-filter:none;margin:0;max-width:none;}
   /* clamp() with a vw-based preferred size, not a fixed px guess -- this
      media query alone covers everything from a ~320px small phone up to
      an 880px tablet, and a fixed size that fits a 390px screen edge-to-
