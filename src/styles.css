@@ -689,6 +689,12 @@ tr:hover td{background:var(--glass-highlight);}
   cursor:pointer;transition:transform .2s cubic-bezier(.2,.7,.3,1),box-shadow .2s cubic-bezier(.2,.7,.3,1);
 }
 .job-ticket:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.48);}
+/* :hover never fires on a touch tap, so without this a tap on mobile (most
+   of this app's actual usage) gave zero visual press feedback -- the card
+   just sat there until the detail modal appeared. Scale down instead of
+   the hover lift itself, so it reads as "being pressed" rather than
+   fighting the same translateY the hover state uses. */
+.job-ticket:active{transform:scale(.98);box-shadow:0 8px 18px rgba(0,0,0,.4);}
 .job-ticket::before{
   content:'';position:absolute;left:15px;top:24px;width:11px;height:11px;border-radius:50%;
   background:var(--bg);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25);
@@ -703,9 +709,21 @@ tr:hover td{background:var(--glass-highlight);}
   padding:4px 9px;border-radius:5px;letter-spacing:1px;display:inline-block;
 }
 .jt-model{font-size:12.5px;color:#5c5748;margin-top:6px;font-weight:600;}
+/* Shown only when the job card has one set (src/views/jobs.js) -- was
+   previously invisible on the ticket itself (only ever used internally to
+   auto-fill the POS cart), so there was no way to tell at a glance what a
+   job would likely cost without opening it. Right-aligned opposite jt-num/
+   jt-plate/jt-model via .jt-head's own justify-content:space-between,
+   which already reserved this exact slot. margin-right compensates for
+   .job-ticket's own right padding (20px) being narrower than .jt-stripe
+   (27px) -- nothing previously sat at the card's right edge to expose that
+   7px shortfall, so the price text clipped under the diagonal stripe
+   without this. */
+.jt-price{font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;color:#8a4a12;flex-shrink:0;margin-right:8px;}
 .jt-desc{font-size:12.5px;color:#454138;margin:10px 0;line-height:1.55;min-height:20px;}
 .jt-foot{display:flex;justify-content:space-between;align-items:center;margin-top:11px;padding-top:10px;border-top:1px dashed var(--paper-line);}
-.jt-mechanic{font-size:11.5px;color:#6b6555;}
+.jt-mechanic{font-size:11.5px;color:#6b6555;display:inline-flex;align-items:center;gap:4px;}
+.jt-mechanic svg{width:11px;height:11px;flex-shrink:0;}
 .jt-stripe{position:absolute;top:0;right:0;width:27px;height:100%;background:repeating-linear-gradient(-45deg,var(--accent),var(--accent) 6px,#2b2822 6px,#2b2822 12px);opacity:.85;border-radius:0 18px 18px 0;}
 .jt-stripe.st-progress{background:repeating-linear-gradient(-45deg,var(--info),var(--info) 6px,#2b2822 6px,#2b2822 12px);}
 .jt-stripe.st-done{background:repeating-linear-gradient(-45deg,var(--success),var(--success) 6px,#2b2822 6px,#2b2822 12px);}
@@ -720,9 +738,22 @@ tr:hover td{background:var(--glass-highlight);}
    is a safety net for all of them, not just the ones that were visibly
    broken. Scrollbar hidden since the row itself is the affordance; a
    visible scrollbar here reads as a stray UI element, not a hint. */
-.tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:nowrap;overflow-x:auto;background:var(--glass-2);padding:5px;border-radius:calc(var(--r-sm) + 5px);border:1px solid var(--glass-border);width:fit-content;max-width:100%;box-shadow:inset 0 1px 3px var(--shadow);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+/* user-select/-webkit-touch-callout/-webkit-user-drag/tap-highlight all
+   reset here -- with none of them set, long-pressing a tab while dragging
+   to scroll the row sideways triggered the browser's own native text-
+   selection/callout/drag-ghost gesture instead of just scrolling (reported
+   as the tab appearing to "float" and follow the finger). These are plain
+   `<div data-jobfilter="...">`-style elements, not text content, so none
+   of the browser's own text-interaction affordances were ever meant to
+   apply to them in the first place -- this isn't disabling a feature,
+   it's turning off a default that only ever misfired here. Lives on
+   .tab-btn/.tabs directly (not a global `*` reset) since every one of the
+   9 call sites sharing this component (Jobs/Inventory/Finance/Customers/
+   Reports/Staff/Appointments/login-kiosk) has the exact same scrollable-
+   row shape and was equally exposed. */
+.tabs{display:flex;gap:6px;margin-bottom:22px;flex-wrap:nowrap;overflow-x:auto;background:var(--glass-2);padding:5px;border-radius:calc(var(--r-sm) + 5px);border:1px solid var(--glass-border);width:fit-content;max-width:100%;box-shadow:inset 0 1px 3px var(--shadow);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-overflow-scrolling:touch;scrollbar-width:none;-webkit-user-select:none;user-select:none;}
 .tabs::-webkit-scrollbar{display:none;}
-.tab-btn{padding:8.5px 16px;border-radius:var(--r-sm);background:transparent;color:var(--text-muted);border:none;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:.1px;white-space:nowrap;flex-shrink:0;}
+.tab-btn{padding:8.5px 16px;border-radius:var(--r-sm);background:transparent;color:var(--text-muted);border:none;font-size:12.5px;font-weight:600;cursor:pointer;letter-spacing:.1px;white-space:nowrap;flex-shrink:0;-webkit-touch-callout:none;-webkit-user-drag:none;-webkit-tap-highlight-color:transparent;}
 .tab-btn:hover{color:var(--text);}
 .tab-btn.active{background:linear-gradient(135deg, var(--accent), var(--accent-2));color:var(--accent-ink);box-shadow:0 3px 10px -2px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,.3);}
 

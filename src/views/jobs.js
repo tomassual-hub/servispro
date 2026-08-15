@@ -14,10 +14,11 @@ function renderJobTicket(j){
         <div class="jt-plate">${v?esc(v.plate):'—'}</div>
         <div class="jt-model">${v?esc(v.model):'—'}</div>
       </div>
+      ${j.estimatedPrice>0 ? `<div class="jt-price">${fmtRM(j.estimatedPrice)}</div>` : ''}
     </div>
     <div class="jt-desc">${esc(j.description) || tt('Tiada penerangan')}</div>
     <div class="jt-foot">
-      <span class="jt-mechanic">👤 ${esc(j.mechanic||'-')} · ${c?esc(c.name):'-'}</span>
+      <span class="jt-mechanic">${ICONS.staff} ${esc(j.mechanic||'-')} · ${c?esc(c.name):'-'}</span>
       <span class="pill pill-${j.status==='waiting'?'wait':j.status}">${statusLabel}</span>
     </div>
   </div>`;
