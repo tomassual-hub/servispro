@@ -992,14 +992,24 @@ function attachHandlers(){
       if(error) throw error;
       if(!data || data.error){
         const messages = {
+          not_authenticated: en?'Your session expired — please log in again.':'Sesi anda tamat — sila log masuk semula.',
           owner_only: en?'Only Admin/Pemilik can manage staff login accounts.':'Hanya Admin/Pemilik boleh urus akaun log masuk staf.',
+          invalid_input: en?'Missing required information — try again.':'Maklumat diperlukan tiada — cuba lagi.',
           staff_not_found: en?'This staff member no longer exists.':'Staf ini tidak lagi wujud.',
           nothing_to_update: en?'Enter a new password to reset it.':'Masukkan kata laluan baharu untuk reset.',
           email_and_password_required: en?'Both email and password are required to create a login.':'E-mel dan kata laluan diperlukan untuk cipta log masuk.',
           created_but_link_failed: en?'Account created but linking failed — contact support.':'Akaun dicipta tetapi pautan gagal — hubungi sokongan.',
         };
-        const msg = messages[data && data.error] || (en?'Could not update this account. Try again.':'Gagal kemaskini akaun ini. Cuba lagi.');
-        reportError(new Error('admin-manage-staff-account: '+(data?data.error+(data.detail?' — '+data.detail:''):'empty response')), 'Urus akaun staf - respons ralat');
+        // auth_error wraps whatever Supabase's own auth.admin.* call said
+        // (e.g. "User already registered", "Password should be at least 6
+        // characters") -- surfaced verbatim rather than folded into a
+        // generic message, since the fix differs by exact cause and this
+        // is the only place that detail is available at all.
+        const code = data && data.error;
+        const msg = code==='auth_error' && data.detail
+          ? (en?`Account error: ${data.detail}`:`Ralat akaun: ${data.detail}`)
+          : messages[code] || (en?`Could not update this account (${code||'no response'}). Try again.`:`Gagal kemaskini akaun ini (${code||'tiada respons'}). Cuba lagi.`);
+        reportError(new Error('admin-manage-staff-account: '+(data?code+(data.detail?' — '+data.detail:''):'empty response')), 'Urus akaun staf - respons ralat');
         showToast(msg);
         return;
       }
