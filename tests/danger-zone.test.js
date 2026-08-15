@@ -1,16 +1,16 @@
-// Danger Zone (Settings -> "Reset Data Invois & Kad Kerja") and the
+// Danger Zone (Settings -> "Reset Data Pelanggan & Transaksi") and the
 // typed-confirmation mechanism it introduced to askConfirm(). Deliberately
 // does NOT click through a real confirm here -- this shared test account's
-// db.jobs/invoices/creditNotes/cashClosures are relied on by every other
-// test file's own bookkeeping (e.g. counts asserted elsewhere), and
-// queueSave() diffs against the server's last-synced snapshot regardless
-// of what's staged locally first, so an actual wipe here would delete
-// every OTHER test's data too, not just this file's. The reset logic
-// itself is a straightforward six-line mutation (reviewed by hand, see
-// 'reset-shop-data' in src/event-handlers.js) -- what actually carries
-// bug risk, and what this file covers, is the surrounding machinery: who
-// can see the button, and whether the typed-confirm gate really blocks a
-// mismatched/empty value.
+// db.customers/vehicles/jobs/invoices/creditNotes/quotations/appointments/
+// contracts/cashClosures are relied on by every other test file's own
+// bookkeeping (e.g. counts asserted elsewhere), and queueSave() diffs
+// against the server's last-synced snapshot regardless of what's staged
+// locally first, so an actual wipe here would delete every OTHER test's
+// data too, not just this file's. The reset logic itself is a
+// straightforward mutation (reviewed by hand, see 'reset-shop-data' in
+// src/event-handlers.js) -- what actually carries bug risk, and what this
+// file covers, is the surrounding machinery: who can see the button, and
+// whether the typed-confirm gate really blocks a mismatched/empty value.
 const { chromium } = require('playwright');
 const { login, clickInPage, makeReporter } = require('./helpers');
 

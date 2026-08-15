@@ -1305,20 +1305,25 @@ function attachHandlers(){
     const en = state.language==='en';
     askConfirm(
       en
-        ? `This permanently deletes ${db.jobs.length} job card(s), ${db.invoices.length} invoice(s), ${db.creditNotes.length} credit note(s), and ${db.cashClosures.length} cash closure record(s), and resets the monthly sales/unit targets to 0. This cannot be undone.`
-        : `Ini akan memadam KEKAL ${db.jobs.length} kad kerja, ${db.invoices.length} invois, ${db.creditNotes.length} nota kredit, dan ${db.cashClosures.length} rekod tutup tunai, serta reset sasaran jualan/unit bulanan kepada 0. Ini tidak boleh dibuat asal.`,
+        ? `This permanently deletes ${db.customers.length} customer(s), ${db.vehicles.length} vehicle(s), ${db.jobs.length} job card(s), ${db.invoices.length} invoice(s), ${db.creditNotes.length} credit note(s), ${db.quotations.length} quotation(s), ${db.appointments.length} appointment(s), ${db.contracts.length} service contract(s), and ${db.cashClosures.length} cash closure record(s), and resets the monthly sales/unit targets to 0. This cannot be undone.`
+        : `Ini akan memadam KEKAL ${db.customers.length} pelanggan, ${db.vehicles.length} kenderaan, ${db.jobs.length} kad kerja, ${db.invoices.length} invois, ${db.creditNotes.length} nota kredit, ${db.quotations.length} sebut harga, ${db.appointments.length} tempahan, ${db.contracts.length} kontrak servis, dan ${db.cashClosures.length} rekod tutup tunai, serta reset sasaran jualan/unit bulanan kepada 0. Ini tidak boleh dibuat asal.`,
       ()=>{
-        const counts = { jobs: db.jobs.length, invoices: db.invoices.length, creditNotes: db.creditNotes.length, cashClosures: db.cashClosures.length };
+        const counts = { customers: db.customers.length, vehicles: db.vehicles.length, jobs: db.jobs.length, invoices: db.invoices.length, creditNotes: db.creditNotes.length, quotations: db.quotations.length, appointments: db.appointments.length, contracts: db.contracts.length, cashClosures: db.cashClosures.length };
+        db.customers = [];
+        db.vehicles = [];
         db.jobs = [];
         db.invoices = [];
         db.creditNotes = [];
+        db.quotations = [];
+        db.appointments = [];
+        db.contracts = [];
         db.cashClosures = [];
         db.settings.monthlySalesTarget = 0;
         db.settings.monthlyUnitTarget = 0;
-        logAudit('Reset Data Kedai', `${counts.jobs} kad kerja, ${counts.invoices} invois, ${counts.creditNotes} nota kredit, ${counts.cashClosures} rekod tutup tunai dipadam; sasaran bulanan direset`);
+        logAudit('Reset Data Kedai', `${counts.customers} pelanggan, ${counts.vehicles} kenderaan, ${counts.jobs} kad kerja, ${counts.invoices} invois, ${counts.creditNotes} nota kredit, ${counts.quotations} sebut harga, ${counts.appointments} tempahan, ${counts.contracts} kontrak, ${counts.cashClosures} rekod tutup tunai dipadam; sasaran bulanan direset`);
         queueSave();
         render();
-        showToast(en ? 'Invoice and job card data has been reset.' : 'Data invois dan kad kerja telah direset.');
+        showToast(en ? 'Customer and transaction data has been reset.' : 'Data pelanggan dan transaksi telah direset.');
       },
       { typedConfirmWord: 'PADAM', confirmLabel: en?'Reset Everything':'Reset Semua' }
     );

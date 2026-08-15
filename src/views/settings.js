@@ -177,31 +177,45 @@ function viewSettings(){
 // Owner-level only (Admin/Pemilik, not Kerani -- see isOwnerLevel() in
 // utils.js) -- this is more destructive than anything Kerani can already
 // do elsewhere (delete-job/delete-customer etc. all remove ONE record with
-// an undo toast; this removes every job/invoice/credit-note/cash-closure
-// row at once with no undo, so it's gated one level stricter). The confirm
-// dialog itself requires typing "PADAM" (see askConfirm's typedConfirmWord
-// in onboarding-confirm.js) rather than the single-click confirm every
-// other delete in this app uses -- a plain confirm has already proven too
-// easy to click through for something this size, with no per-item undo to
-// fall back on afterward.
+// an undo toast; this removes every row across every collection listed
+// below at once, with no undo, so it's gated one level stricter). The
+// confirm dialog itself requires typing "PADAM" (see askConfirm's
+// typedConfirmWord in onboarding-confirm.js) rather than the single-click
+// confirm every other delete in this app uses -- a plain confirm has
+// already proven too easy to click through for something this size, with
+// no per-item undo to fall back on afterward.
+// Scope widened from "just jobs/invoices" to also include
+// customers/vehicles/quotations/appointments/contracts per the shop's own
+// request once they clarified they wanted no orphaned data left behind --
+// a quotation/appointment/contract pointing at a deleted customerId would
+// otherwise just show blank/"-" everywhere instead of actually being
+// gone. Inventory and staff are deliberately still excluded: a shop's
+// parts catalog and its own team accounts aren't "test data" in the same
+// way even during a development phase, and nothing about wiping
+// transactions/customers requires touching either.
 function dangerZonePanelHTML(){
   const en = state.language==='en';
   return `
   <div class="panel" style="margin-top:20px;border-color:var(--danger);">
     <h2 style="color:var(--danger);">${ICONS.alert} ${en?'Danger Zone':'Zon Bahaya'}</h2>
-    <p style="font-size:12.5px;color:var(--text-muted);margin-top:0;">${en?'Permanently wipe this shop\'s transactional history -- useful for clearing test/demo data before going live, or starting a fresh accounting period. Customers, vehicles, inventory, and staff are NOT touched.':'Padam kekal sejarah transaksi bengkel ini -- berguna untuk bersihkan data ujian/demo sebelum guna sebenar, atau mula tempoh perakaunan baharu. Pelanggan, kenderaan, inventori, dan staf TIDAK disentuh.'}</p>
+    <p style="font-size:12.5px;color:var(--text-muted);margin-top:0;">${en?'Permanently wipe this shop\'s customer and transactional history -- useful for clearing test/demo data before going live, or starting a fresh accounting period. Inventory and staff accounts are NOT touched.':'Padam kekal sejarah pelanggan dan transaksi bengkel ini -- berguna untuk bersihkan data ujian/demo sebelum guna sebenar, atau mula tempoh perakaunan baharu. Inventori dan akaun staf TIDAK disentuh.'}</p>
     <div style="background:rgba(225,75,75,.08);border:1px solid var(--danger);border-radius:8px;padding:12px;margin-bottom:14px;">
       <div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">${en?'This permanently deletes:':'Ini akan memadam KEKAL:'}</div>
       <ul style="margin:0;padding-left:18px;font-size:12px;color:var(--text-muted);line-height:1.7;">
+        <li>${en?'All customers':'Semua pelanggan'} (${db.customers.length})</li>
+        <li>${en?'All vehicles':'Semua kenderaan'} (${db.vehicles.length})</li>
         <li>${en?'All job cards':'Semua kad kerja'} (${db.jobs.length})</li>
         <li>${en?'All invoices':'Semua invois'} (${db.invoices.length})</li>
         <li>${en?'All credit notes':'Semua nota kredit'} (${db.creditNotes.length})</li>
+        <li>${en?'All quotations':'Semua sebut harga'} (${db.quotations.length})</li>
+        <li>${en?'All appointments':'Semua tempahan'} (${db.appointments.length})</li>
+        <li>${en?'All service contracts':'Semua kontrak servis'} (${db.contracts.length})</li>
         <li>${en?'All daily cash closure records':'Semua rekod tutup tunai harian'} (${db.cashClosures.length})</li>
         <li>${en?'Monthly sales/unit targets (reset to 0)':'Sasaran jualan/unit bulanan (reset kepada 0)'}</li>
       </ul>
     </div>
     <div style="font-size:11.5px;color:var(--danger);margin-bottom:12px;">⚠️ ${en?'Cannot be undone. Download a backup above first if you might need this data again.':'Tidak boleh dibuat asal. Muat turun sandaran di atas dahulu jika mungkin perlukan data ini semula.'}</div>
-    <button class="btn btn-danger" style="width:100%;justify-content:center;" data-action="reset-shop-data">${ICONS.trash} ${en?'Reset Invoice & Job Card Data':'Reset Data Invois & Kad Kerja'}</button>
+    <button class="btn btn-danger" style="width:100%;justify-content:center;" data-action="reset-shop-data">${ICONS.trash} ${en?'Reset Customer & Transaction Data':'Reset Data Pelanggan & Transaksi'}</button>
   </div>`;
 }
 
