@@ -165,6 +165,12 @@ function viewSettings(){
   })()}
 
   <div class="panel" style="margin-top:20px;">
+    <h2>${ICONS.globe} ${state.language==='en'?'Language':'Bahasa'}</h2>
+    <p style="font-size:12.5px;color:var(--text-muted);margin-top:0;">${state.language==='en'?'Choose the language for menus, buttons and page titles across the app.':'Pilih bahasa untuk menu, butang dan tajuk halaman di seluruh aplikasi.'}</p>
+    ${languagePickerHTML('settings-lang-picker')}
+  </div>
+
+  <div class="panel" style="margin-top:20px;">
     <h2>${ICONS.gauge} ${state.language==='en'?'Waiting Area Display Board':'Papan Paparan Kawasan Menunggu'}</h2>
     <p style="font-size:12.5px;color:var(--text-muted);margin-top:0;">${state.language==='en'?'Launch the TV/tablet board showing active jobs\' status, without logging out first — useful for setting up or previewing the waiting-area screen. It can also still be reached without logging in at all (the login screen\'s own link, or bookmarking this site with ?board=1), which stays the normal way an always-on shop TV loads it.':'Lancarkan papan TV/tablet yang memaparkan status kad kerja aktif, tanpa perlu log keluar dahulu — berguna untuk menyediakan atau pratonton skrin kawasan menunggu. Ia masih boleh diakses tanpa log masuk (pautan pada skrin log masuk, atau bookmark laman ini dengan ?board=1), iaitu cara biasa TV bengkel yang sentiasa hidup memuatkannya.'}</p>
     <button class="btn btn-outline" data-action="open-board-in-app">${ICONS.gauge} ${state.language==='en'?'Open Display Board':'Buka Papan Paparan'}</button>

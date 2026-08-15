@@ -213,6 +213,7 @@ body::before{
 .theme-toggle .t-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
 .theme-toggle .t-icon.active{background:var(--accent);color:var(--accent-ink);}
 .theme-toggle .t-icon:not(.active){color:var(--text-muted);}
+.lang-picker{background:var(--glass-2);border:1px solid var(--glass-border);border-radius:20px;padding:0 10px;height:36px;color:var(--text);font-size:12px;font-weight:600;flex-shrink:0;cursor:pointer;max-width:130px;}
 
 .sidebar-backdrop{display:none;position:fixed;inset:0;background:var(--backdrop);z-index:40;}
 

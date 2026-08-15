@@ -5,7 +5,40 @@
 // literals just keep the last, identical, value) but tsc's duplicate-key
 // check can't tell "harmless repeat" from "actually conflicting" without
 // per-entry review, and this file has no logic worth type-checking anyway.
-/* ============================= i18n (partial: nav, chrome, common buttons) ============================= */
+/* ============================= i18n =============================
+   Two layers, deliberately different in how far each one's translation
+   coverage goes:
+   - I18N/t(): a small, fully-translated set of ~35 keys (nav labels, page
+     titles, common buttons, the login screen) -- the app's own "chrome",
+     visible on every single screen regardless of which view is open. Every
+     supported language (see SUPPORTED_LANGUAGES below) has a complete,
+     hand-written entry for all of these.
+   - MS_EN/tt(): a much larger (~200 entries) Malay->English lookup used
+     for body text scattered across every individual view (form labels,
+     help text, toast/confirm messages). Only Malay and English are fully
+     covered here -- extending this SAME way to every SUPPORTED_LANGUAGES
+     entry would mean translating/maintaining ~200 strings PER language
+     (1000+ more entries) on top of the >1,200 other hardcoded bilingual
+     ternaries (`state.language==='en'?'X':'Y'`) spread throughout every
+     view file, none of which route through here at all. That's a much
+     larger, separate undertaking than this pass -- see tt() below for
+     exactly how a language beyond ms/en degrades (falls back to English,
+     not a blank/broken string) until that migration happens incrementally.
+*/
+const SUPPORTED_LANGUAGES = [
+  {code:'ms', label:'Bahasa Melayu'},
+  {code:'en', label:'English'},
+  {code:'zh', label:'中文'},
+  {code:'ta', label:'தமிழ்'},
+  {code:'id', label:'Bahasa Indonesia'},
+  {code:'th', label:'ไทย'},
+  {code:'vi', label:'Tiếng Việt'},
+  {code:'ko', label:'한국어'},
+  {code:'ja', label:'日本語'},
+  {code:'ru', label:'Русский'},
+  {code:'ar', label:'العربية'},
+];
+
 const I18N = {
   ms: {
     nav_dashboard:'Papan Pemuka', nav_jobs:'Kad Kerja', nav_pos:'POS', nav_inventory:'Inventori', nav_finance:'Kewangan',
@@ -28,9 +61,157 @@ const I18N = {
     stat_today_sales:"Today's Sales", stat_active_jobs:'Active Jobs', stat_low_stock:'Low Stock', stat_total_customers:'Total Customers',
     btn_save:'Save', btn_cancel:'Cancel', btn_close:'Close', btn_delete:'Delete', btn_edit:'Edit', btn_add:'Add',
     btn_logout:'Log Out', search_placeholder:'Search customers, plates, job/invoice no...',
-  }
+  },
+  zh: {
+    nav_dashboard:'仪表板', nav_jobs:'工作卡', nav_pos:'POS', nav_inventory:'库存', nav_finance:'财务',
+    nav_customers:'客户', nav_reports:'报告', nav_staff:'员工', nav_appointments:'预约', nav_settings:'设置',
+    title_dashboard:'仪表板', title_jobs:'工作卡', title_pos:'销售点 (POS)', title_inventory:'零件库存', title_finance:'财务',
+    title_customers:'客户与车辆', title_reports:'报告', title_staffpage:'员工管理',
+    title_appointments:'预约与服务合同', title_settings:'设置', title_payroll:'薪资',
+    login_title:'请登录', kiosk_link:'客户？查看您的车辆状态',
+    stat_today_sales:'今日销售额', stat_active_jobs:'进行中的工作', stat_low_stock:'库存不足', stat_total_customers:'客户总数',
+    btn_save:'保存', btn_cancel:'取消', btn_close:'关闭', btn_delete:'删除', btn_edit:'编辑', btn_add:'添加',
+    btn_logout:'登出', search_placeholder:'搜索客户、车牌、工作/发票编号...',
+  },
+  ta: {
+    nav_dashboard:'முகப்புப் பலகை', nav_jobs:'பணி அட்டைகள்', nav_pos:'POS', nav_inventory:'சரக்கு', nav_finance:'நிதி',
+    nav_customers:'வாடிக்கையாளர்கள்', nav_reports:'அறிக்கைகள்', nav_staff:'பணியாளர்கள்', nav_appointments:'சந்திப்புகள்', nav_settings:'அமைப்புகள்',
+    title_dashboard:'முகப்புப் பலகை', title_jobs:'பணி அட்டைகள்', title_pos:'விற்பனை புள்ளி (POS)', title_inventory:'பாகங்கள் சரக்கு', title_finance:'நிதி',
+    title_customers:'வாடிக்கையாளர்கள் & வாகனங்கள்', title_reports:'அறிக்கைகள்', title_staffpage:'பணியாளர் மேலாண்மை',
+    title_appointments:'சந்திப்புகள் & சேவை ஒப்பந்தங்கள்', title_settings:'அமைப்புகள்', title_payroll:'சம்பளப்பட்டியல்',
+    login_title:'உள்நுழையவும்', kiosk_link:'வாடிக்கையாளரா? உங்கள் வாகன நிலையைச் சரிபார்க்கவும்',
+    stat_today_sales:'இன்றைய விற்பனை', stat_active_jobs:'செயலில் உள்ள பணிகள்', stat_low_stock:'குறைந்த இருப்பு', stat_total_customers:'மொத்த வாடிக்கையாளர்கள்',
+    btn_save:'சேமி', btn_cancel:'ரத்து செய்', btn_close:'மூடு', btn_delete:'நீக்கு', btn_edit:'திருத்து', btn_add:'சேர்',
+    btn_logout:'வெளியேறு', search_placeholder:'வாடிக்கையாளர், பதிவு எண், பணி/விலைப்பட்டியல் எண் தேடவும்...',
+  },
+  id: {
+    nav_dashboard:'Dasbor', nav_jobs:'Kartu Kerja', nav_pos:'POS', nav_inventory:'Inventaris', nav_finance:'Keuangan',
+    nav_customers:'Pelanggan', nav_reports:'Laporan', nav_staff:'Staf', nav_appointments:'Janji Temu', nav_settings:'Pengaturan',
+    title_dashboard:'Dasbor', title_jobs:'Kartu Kerja', title_pos:'Titik Penjualan (POS)', title_inventory:'Inventaris Suku Cadang', title_finance:'Keuangan',
+    title_customers:'Pelanggan & Kendaraan', title_reports:'Laporan', title_staffpage:'Manajemen Staf',
+    title_appointments:'Janji Temu & Kontrak Servis', title_settings:'Pengaturan', title_payroll:'Penggajian',
+    login_title:'Silakan Masuk', kiosk_link:'Pelanggan? Periksa Status Kendaraan Anda',
+    stat_today_sales:'Penjualan Hari Ini', stat_active_jobs:'Pekerjaan Aktif', stat_low_stock:'Stok Rendah', stat_total_customers:'Total Pelanggan',
+    btn_save:'Simpan', btn_cancel:'Batal', btn_close:'Tutup', btn_delete:'Hapus', btn_edit:'Ubah', btn_add:'Tambah',
+    btn_logout:'Keluar', search_placeholder:'Cari pelanggan, plat, no. kerja/invoice...',
+  },
+  th: {
+    nav_dashboard:'แดชบอร์ด', nav_jobs:'ใบงาน', nav_pos:'POS', nav_inventory:'คลังสินค้า', nav_finance:'การเงิน',
+    nav_customers:'ลูกค้า', nav_reports:'รายงาน', nav_staff:'พนักงาน', nav_appointments:'นัดหมาย', nav_settings:'ตั้งค่า',
+    title_dashboard:'แดชบอร์ด', title_jobs:'ใบงาน', title_pos:'จุดขาย (POS)', title_inventory:'คลังอะไหล่', title_finance:'การเงิน',
+    title_customers:'ลูกค้าและยานพาหนะ', title_reports:'รายงาน', title_staffpage:'การจัดการพนักงาน',
+    title_appointments:'นัดหมายและสัญญาบริการ', title_settings:'ตั้งค่า', title_payroll:'เงินเดือน',
+    login_title:'กรุณาเข้าสู่ระบบ', kiosk_link:'ลูกค้า? ตรวจสอบสถานะยานพาหนะของคุณ',
+    stat_today_sales:'ยอดขายวันนี้', stat_active_jobs:'งานที่กำลังดำเนินการ', stat_low_stock:'สต็อกต่ำ', stat_total_customers:'ลูกค้าทั้งหมด',
+    btn_save:'บันทึก', btn_cancel:'ยกเลิก', btn_close:'ปิด', btn_delete:'ลบ', btn_edit:'แก้ไข', btn_add:'เพิ่ม',
+    btn_logout:'ออกจากระบบ', search_placeholder:'ค้นหาลูกค้า ป้ายทะเบียน เลขที่งาน/ใบแจ้งหนี้...',
+  },
+  vi: {
+    nav_dashboard:'Bảng điều khiển', nav_jobs:'Thẻ công việc', nav_pos:'POS', nav_inventory:'Kho hàng', nav_finance:'Tài chính',
+    nav_customers:'Khách hàng', nav_reports:'Báo cáo', nav_staff:'Nhân viên', nav_appointments:'Lịch hẹn', nav_settings:'Cài đặt',
+    title_dashboard:'Bảng điều khiển', title_jobs:'Thẻ công việc', title_pos:'Điểm bán hàng (POS)', title_inventory:'Kho phụ tùng', title_finance:'Tài chính',
+    title_customers:'Khách hàng & Xe', title_reports:'Báo cáo', title_staffpage:'Quản lý nhân viên',
+    title_appointments:'Lịch hẹn & Hợp đồng dịch vụ', title_settings:'Cài đặt', title_payroll:'Bảng lương',
+    login_title:'Vui lòng đăng nhập', kiosk_link:'Khách hàng? Kiểm tra tình trạng xe của bạn',
+    stat_today_sales:'Doanh số hôm nay', stat_active_jobs:'Công việc đang hoạt động', stat_low_stock:'Sắp hết hàng', stat_total_customers:'Tổng số khách hàng',
+    btn_save:'Lưu', btn_cancel:'Hủy', btn_close:'Đóng', btn_delete:'Xóa', btn_edit:'Sửa', btn_add:'Thêm',
+    btn_logout:'Đăng xuất', search_placeholder:'Tìm khách hàng, biển số, số công việc/hóa đơn...',
+  },
+  ko: {
+    nav_dashboard:'대시보드', nav_jobs:'작업 카드', nav_pos:'POS', nav_inventory:'재고', nav_finance:'재무',
+    nav_customers:'고객', nav_reports:'보고서', nav_staff:'직원', nav_appointments:'예약', nav_settings:'설정',
+    title_dashboard:'대시보드', title_jobs:'작업 카드', title_pos:'판매 시점 (POS)', title_inventory:'부품 재고', title_finance:'재무',
+    title_customers:'고객 및 차량', title_reports:'보고서', title_staffpage:'직원 관리',
+    title_appointments:'예약 및 서비스 계약', title_settings:'설정', title_payroll:'급여',
+    login_title:'로그인해 주세요', kiosk_link:'고객이신가요? 차량 상태 확인하기',
+    stat_today_sales:'오늘의 매출', stat_active_jobs:'진행 중인 작업', stat_low_stock:'재고 부족', stat_total_customers:'총 고객 수',
+    btn_save:'저장', btn_cancel:'취소', btn_close:'닫기', btn_delete:'삭제', btn_edit:'수정', btn_add:'추가',
+    btn_logout:'로그아웃', search_placeholder:'고객, 번호판, 작업/송장 번호 검색...',
+  },
+  ja: {
+    nav_dashboard:'ダッシュボード', nav_jobs:'作業カード', nav_pos:'POS', nav_inventory:'在庫', nav_finance:'財務',
+    nav_customers:'顧客', nav_reports:'レポート', nav_staff:'スタッフ', nav_appointments:'予約', nav_settings:'設定',
+    title_dashboard:'ダッシュボード', title_jobs:'作業カード', title_pos:'販売時点情報管理 (POS)', title_inventory:'部品在庫', title_finance:'財務',
+    title_customers:'顧客と車両', title_reports:'レポート', title_staffpage:'スタッフ管理',
+    title_appointments:'予約とサービス契約', title_settings:'設定', title_payroll:'給与',
+    login_title:'ログインしてください', kiosk_link:'お客様ですか？車両の状態を確認する',
+    stat_today_sales:'本日の売上', stat_active_jobs:'進行中の作業', stat_low_stock:'在庫不足', stat_total_customers:'総顧客数',
+    btn_save:'保存', btn_cancel:'キャンセル', btn_close:'閉じる', btn_delete:'削除', btn_edit:'編集', btn_add:'追加',
+    btn_logout:'ログアウト', search_placeholder:'顧客、ナンバープレート、作業/請求書番号を検索...',
+  },
+  ru: {
+    nav_dashboard:'Панель управления', nav_jobs:'Наряд-заказы', nav_pos:'POS', nav_inventory:'Склад', nav_finance:'Финансы',
+    nav_customers:'Клиенты', nav_reports:'Отчёты', nav_staff:'Персонал', nav_appointments:'Записи', nav_settings:'Настройки',
+    title_dashboard:'Панель управления', title_jobs:'Наряд-заказы', title_pos:'Точка продаж (POS)', title_inventory:'Склад запчастей', title_finance:'Финансы',
+    title_customers:'Клиенты и автомобили', title_reports:'Отчёты', title_staffpage:'Управление персоналом',
+    title_appointments:'Записи и сервисные контракты', title_settings:'Настройки', title_payroll:'Зарплата',
+    login_title:'Пожалуйста, войдите', kiosk_link:'Клиент? Проверьте статус вашего автомобиля',
+    stat_today_sales:'Продажи за сегодня', stat_active_jobs:'Активные заказы', stat_low_stock:'Низкий запас', stat_total_customers:'Всего клиентов',
+    btn_save:'Сохранить', btn_cancel:'Отмена', btn_close:'Закрыть', btn_delete:'Удалить', btn_edit:'Изменить', btn_add:'Добавить',
+    btn_logout:'Выйти', search_placeholder:'Поиск клиента, номера, наряда/счёта...',
+  },
+  ar: {
+    nav_dashboard:'لوحة التحكم', nav_jobs:'بطاقات العمل', nav_pos:'نقطة البيع', nav_inventory:'المخزون', nav_finance:'المالية',
+    nav_customers:'العملاء', nav_reports:'التقارير', nav_staff:'الموظفون', nav_appointments:'المواعيد', nav_settings:'الإعدادات',
+    title_dashboard:'لوحة التحكم', title_jobs:'بطاقات العمل', title_pos:'نقطة البيع (POS)', title_inventory:'مخزون القطع', title_finance:'المالية',
+    title_customers:'العملاء والمركبات', title_reports:'التقارير', title_staffpage:'إدارة الموظفين',
+    title_appointments:'المواعيد وعقود الخدمة', title_settings:'الإعدادات', title_payroll:'الرواتب',
+    login_title:'يرجى تسجيل الدخول', kiosk_link:'هل أنت عميل؟ تحقق من حالة مركبتك',
+    stat_today_sales:'مبيعات اليوم', stat_active_jobs:'الأعمال النشطة', stat_low_stock:'مخزون منخفض', stat_total_customers:'إجمالي العملاء',
+    btn_save:'حفظ', btn_cancel:'إلغاء', btn_close:'إغلاق', btn_delete:'حذف', btn_edit:'تعديل', btn_add:'إضافة',
+    btn_logout:'تسجيل الخروج', search_placeholder:'البحث عن عميل أو لوحة أو رقم عمل/فاتورة...',
+  },
 };
-function t(key){ return (I18N[state.language] && I18N[state.language][key]) || I18N.ms[key] || key; }
+// state.displayLanguage is the user's actual chosen language (any
+// SUPPORTED_LANGUAGES code); state.language stays ms/en ONLY (see
+// setDisplayLanguage() below) since that's what the >1,200 hardcoded
+// `state.language==='en'?'X':'Y'` ternaries elsewhere in this app check
+// directly -- t() prefers a full displayLanguage entry when one exists
+// (all of them do, see above), then falls back through language, then ms.
+function t(key){
+  return (I18N[state.displayLanguage] && I18N[state.displayLanguage][key])
+    || (I18N[state.language] && I18N[state.language][key])
+    || I18N.ms[key] || key;
+}
+
+// Sets both language fields together -- `language` is forced to 'en' for
+// any chosen language other than ms/en itself, so the large body of
+// pre-existing `state.language==='en'?...` ternaries elsewhere in the app
+// (never updated to know about the other SUPPORTED_LANGUAGES codes)
+// automatically fall back to English rather than staying stuck in Malay.
+// Does not render() or persist by itself -- callers (the language picker's
+// change handler, and initApp()'s boot-time restore) do that themselves,
+// since the picker also needs to save the choice and the boot restore
+// deliberately must not.
+function setDisplayLanguage(code){
+  state.displayLanguage = code;
+  state.language = (code==='ms' || code==='en') ? code : 'en';
+}
+
+// Shared <select> replacing the old binary MS/EN toggle button -- rendered
+// at every spot that button used to occupy (topbar, mobile more-sheet,
+// login screen, kiosk screen, account page). A single component so all 5
+// spots stay in sync automatically instead of drifting the way 5 separate
+// copies of the old toggle's markup could.
+function languagePickerHTML(extraClass){
+  return `<select class="lang-picker ${extraClass||''}" data-action="set-display-language" title="Language / Bahasa">
+    ${SUPPORTED_LANGUAGES.map(l=>`<option value="${l.code}" ${state.displayLanguage===l.code?'selected':''}>${l.label}</option>`).join('')}
+  </select>`;
+}
+// Called from every attach*Handlers() that can render a languagePickerHTML()
+// instance (see event-handlers.js/login-kiosk.js) -- querySelectorAll
+// rather than getElementById since the mobile more-sheet's and desktop
+// topbar's pickers can both be present in the DOM at once (CSS breakpoints
+// hide one, not JS), same reasoning as the old toggle-lang's bindAllAction.
+function bindLanguagePickers(){
+  document.querySelectorAll('[data-action="set-display-language"]').forEach(el=>{
+    el.addEventListener('change', ()=>{
+      setDisplayLanguage(/** @type {HTMLSelectElement} */(el).value);
+      try{ window.storage.set('display-language', state.displayLanguage, false); }catch(e){}
+      render();
+    });
+  });
+}
 
 // Bulk MS->EN map for body text across all views (key = Malay text as written in the UI)
 const MS_EN = {
@@ -230,5 +411,8 @@ const MS_EN = {
   'Imbas kod bar atau taip SKU, tekan Enter':'Scan barcode or type SKU, press Enter',
   'Tiada item sepadan.':'No matching items.',
 };
-function tt(msText){ return state.language==='en' ? (MS_EN[msText]||msText) : msText; }
-
+// Only Malay gets its own literal text back -- every OTHER language
+// (English included) reads through the English translation above. See the
+// file header comment for why this layer doesn't have a dedicated map per
+// SUPPORTED_LANGUAGES entry the way I18N/t() does.
+function tt(msText){ return state.displayLanguage==='ms' ? msText : (MS_EN[msText]||msText); }

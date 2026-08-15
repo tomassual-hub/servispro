@@ -125,10 +125,7 @@ function renderMobileMoreSheet(){
             <div class="t-icon ${state.theme==='light'?'active':''}">${ICONS.sun}</div>
             <div class="t-icon ${state.theme==='dark'?'active':''}">${ICONS.moon}</div>
           </div>
-          <div class="theme-toggle" data-action="toggle-lang" title="Switch language">
-            <div class="t-icon ${state.language==='ms'?'active':''}" style="font-size:10px;font-weight:700;">MS</div>
-            <div class="t-icon ${state.language==='en'?'active':''}" style="font-size:10px;font-weight:700;">EN</div>
-          </div>
+          ${languagePickerHTML()}
         </div>
         <div class="sidebar-account-buttons">
           <button class="btn-icon" data-action="open-mfa-settings" title="2FA">${ICONS.shield}</button>
@@ -331,10 +328,7 @@ function renderTopbar(){
           <div class="user-role" style="text-align:right;">${s?s.role:''}</div>
         </div>
         <div class="user-avatar">${initials(s?s.name:'')}</div>
-        <div class="theme-toggle" data-action="toggle-lang" title="Switch language">
-          <div class="t-icon ${state.language==='ms'?'active':''}" style="font-size:10px;font-weight:700;">MS</div>
-          <div class="t-icon ${state.language==='en'?'active':''}" style="font-size:10px;font-weight:700;">EN</div>
-        </div>
+        ${languagePickerHTML()}
         <button class="btn-icon" data-action="open-mfa-settings" title="2FA">${ICONS.shield}</button>
         <button class="btn-icon" data-action="logout" title="${t('btn_logout')}">${ICONS.logout}</button>
       </div>

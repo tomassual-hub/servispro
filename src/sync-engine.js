@@ -714,6 +714,10 @@ async function initApp(){
       state.boardMode = true;
     }
   }catch(e){ /* malformed URL -- fall through to the normal login screen */ }
+  try{
+    const langRec = await window.storage.get('display-language', false);
+    if(langRec && SUPPORTED_LANGUAGES.some(l=>l.code===langRec.value)) setDisplayLanguage(langRec.value);
+  }catch(e){ /* key not set yet, or storage unavailable -- default state.displayLanguage stands */ }
   render();
   try{
     const { data:{ session } } = await supabaseClient.auth.getSession();

@@ -2,6 +2,12 @@
 let state = {
   view: 'dashboard',
   language: 'ms',
+  // The user's actual chosen language (any SUPPORTED_LANGUAGES code, see
+  // i18n.js) -- `language` above stays ms/en ONLY since that's what the
+  // >1,200 hardcoded `state.language==='en'?'X':'Y'` ternaries throughout
+  // the view files check directly; setDisplayLanguage() keeps both in
+  // sync. Restored from storage on boot by initApp() (see sync-engine.js).
+  displayLanguage: 'ms',
   modal: null,       // {type, payload}
   posCart: [],
   posCustomerId: '',

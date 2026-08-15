@@ -141,10 +141,7 @@ function renderLoginScreen(){
     ${featuresPanel}
     <div class="login-box">
       <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-        <div class="theme-toggle" data-action="toggle-lang" title="Switch language">
-          <div class="t-icon ${state.language==='ms'?'active':''}" style="font-size:10px;font-weight:700;">MS</div>
-          <div class="t-icon ${state.language==='en'?'active':''}" style="font-size:10px;font-weight:700;">EN</div>
-        </div>
+        ${languagePickerHTML()}
       </div>
       <div class="login-brand">
         ${logoBlock}
@@ -186,11 +183,7 @@ function attachLoginHandlers(){
   if(kioskLink) kioskLink.addEventListener('click', ()=>{ state.kioskMode=true; state.kioskQuery=''; state.kioskResult=null; render(); });
   const boardLink = document.querySelector('[data-action="open-board"]');
   if(boardLink) boardLink.addEventListener('click', ()=>{ state.boardMode=true; state.boardJobs=null; render(); });
-  bindAllAction('toggle-lang', ()=>{
-    state.language = state.language==='ms' ? 'en' : 'ms';
-    render();
-    try{ window.storage.set('lang-pref', state.language, false); }catch(e){}
-  });
+  bindLanguagePickers();
 
   document.querySelectorAll('[data-action="auth-mode-login"]').forEach(el=>el.addEventListener('click', ()=>setAuthMode('login')));
   document.querySelectorAll('[data-action="auth-mode-signup"]').forEach(el=>el.addEventListener('click', ()=>setAuthMode('signup')));
@@ -390,10 +383,7 @@ function renderKioskScreen(){
   <div class="login-screen">
     <div class="login-box">
       <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-        <div class="theme-toggle" data-action="toggle-lang" title="Switch language">
-          <div class="t-icon ${state.language==='ms'?'active':''}" style="font-size:10px;font-weight:700;">MS</div>
-          <div class="t-icon ${state.language==='en'?'active':''}" style="font-size:10px;font-weight:700;">EN</div>
-        </div>
+        ${languagePickerHTML()}
       </div>
       <div class="login-brand">
         <div class="mark">${logoMarkHtml(112)}</div>
@@ -662,11 +652,7 @@ function attachKioskHandlers(){
     state.custPortalChecked = false; state.custPortalError = ''; state.custPortalNotice = '';
     render();
   });
-  bindAllAction('toggle-lang', ()=>{
-    state.language = state.language==='ms' ? 'en' : 'ms';
-    render();
-    try{ window.storage.set('lang-pref', state.language, false); }catch(e){}
-  });
+  bindLanguagePickers();
   document.querySelectorAll('[data-kiosktab]').forEach(el=>el.addEventListener('click', ()=>{
     state.kioskTab = el.dataset.kiosktab;
     render();

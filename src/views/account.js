@@ -144,10 +144,7 @@ function viewAccount(){
           <div class="t-icon ${state.theme==='light'?'active':''}">${ICONS.sun}</div>
           <div class="t-icon ${state.theme==='dark'?'active':''}">${ICONS.moon}</div>
         </div>
-        <div class="theme-toggle" data-action="toggle-lang" title="Switch language">
-          <div class="t-icon ${state.language==='ms'?'active':''}" style="font-size:10px;font-weight:700;">MS</div>
-          <div class="t-icon ${state.language==='en'?'active':''}" style="font-size:10px;font-weight:700;">EN</div>
-        </div>
+        ${languagePickerHTML()}
         ${pushSupported() ? `
         <div class="theme-toggle" data-action="toggle-push-notifications" title="${en?'Push notifications':'Notifikasi push'}">
           <div class="t-icon ${!state.pushSubscribed?'active':''}" style="font-size:10px;font-weight:700;">OFF</div>

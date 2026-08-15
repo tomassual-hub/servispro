@@ -375,6 +375,7 @@ interface AppState {
   currentStaff: Staff | null;
   currentBranch: string;
   language: 'ms' | 'en';
+  displayLanguage: string;
   theme: 'light' | 'dark';
   view: string;
   modal: { type: string; [key: string]: any } | null;
@@ -546,6 +547,10 @@ declare function vehicleServiceStatus(v: Vehicle): { due: boolean; kmLeft: numbe
 
 declare function t(key: string): string;
 declare function tt(msText: string): string;
+declare const SUPPORTED_LANGUAGES: { code: string; label: string }[];
+declare function setDisplayLanguage(code: string): void;
+declare function languagePickerHTML(extraClass?: string): string;
+declare function bindLanguagePickers(): void;
 
 declare function render(): void;
 declare function isModalBlocking(): boolean;

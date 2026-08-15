@@ -102,11 +102,7 @@ function attachHandlers(){
     render();
     try{ window.storage.set('theme-pref', state.theme, false); }catch(e){}
   });
-  bindAllAction('toggle-lang', ()=>{
-    state.language = state.language==='ms' ? 'en' : 'ms';
-    render();
-    try{ window.storage.set('lang-pref', state.language, false); }catch(e){}
-  });
+  bindLanguagePickers();
   document.querySelectorAll('[data-jobfilter]').forEach(el=>el.addEventListener('click', ()=>setState({jobFilter:el.dataset.jobfilter, jobsShowCount:30})));
   bindAction('load-more-jobs', ()=>setState({jobsShowCount:(state.jobsShowCount||30)+30}));
   const jobDateSel = document.getElementById('job-date-filter');
