@@ -633,6 +633,7 @@ declare function renderConfirmModal(): string;
 declare function renderOnboarding(): string;
 declare function renderLoginScreen(): string;
 declare function renderKioskScreen(): string;
+declare function kioskNormalizePhone(phone: string, countryCode?: string): string;
 declare function renderAttendancePunch(): string;
 declare function loadAttendanceStatus(): Promise<void>;
 declare function attachAttendancePunchHandlers(): void;

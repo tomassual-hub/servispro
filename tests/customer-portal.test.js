@@ -218,7 +218,7 @@ async function run(){
   await anonPage.waitForFunction(() => state.custPortalMode === 'dashboard', { timeout: 10000 }).catch(()=>{});
   await anonPage.waitForFunction(() => state.custPortalData && state.custPortalData !== 'loading', { timeout: 10000 }).catch(()=>{});
   const dashboardA = await anonPage.evaluate(() => document.body.innerText);
-  r.checkTrue('customer A dashboard greets them by name', dashboardA.includes('Hi, CPT Customer A'));
+  r.checkTrue('customer A dashboard greets them by name', dashboardA.includes('Welcome') && dashboardA.includes('CPT Customer A'));
   r.checkTrue('customer A dashboard shows their own invoice', dashboardA.includes('RM 50.00'));
 
   // ================= regression: staff/shop_meta/audit_log + staff-only RPCs must stay closed to a customer session =================

@@ -1395,12 +1395,22 @@ stable
 as $$
 declare
   my_id text;
+  my_points int;
+  shop jsonb;
 begin
-  select id into my_id from customers where user_id = auth.uid();
+  select id, coalesce((data->>'loyaltyPoints')::int, 0) into my_id, my_points from customers where user_id = auth.uid();
   if my_id is null then return null; end if;
+
+  -- Same security-definer bypass of shop_meta's staff-only RLS as
+  -- kiosk_get_invoice() above -- a customer account is never staff, so
+  -- without this the portal dashboard's "call the workshop" action would
+  -- have no phone number to call.
+  select data into shop from shop_meta where id = 'settings';
 
   return jsonb_build_object(
     'customerId', my_id,
+    'loyaltyPoints', my_points,
+    'shopName', shop->>'shopName', 'shopPhone', shop->>'shopPhone', 'countryCode', coalesce(shop->>'countryCode', '60'),
     'vehicles', (
       select coalesce(jsonb_agg(jsonb_build_object('id', v.id, 'plate', v.data->>'plate', 'model', v.data->>'model')), '[]'::jsonb)
       from vehicles v where v.data->>'customerId' = my_id

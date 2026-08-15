@@ -2,6 +2,17 @@
 // Same reasoning as event-handlers.js: dominated by raw DOM .value reads
 // off getElementById() results, plus one string|Job union tsc can't narrow
 // without a discriminant. Low type-checking value relative to the noise.
+
+// A local copy of utils.js's normalizePhone(), which reads db.settings --
+// db is never populated on this anonymous/kiosk screen (no staff session,
+// no full sync), so the shop's phone/country code here come from
+// get_my_customer_data()'s own return value instead (see kioskAccountTabHTML).
+function kioskNormalizePhone(phone, countryCode){
+  let p = (phone||'').replace(/[^0-9]/g,'');
+  if(p.startsWith('0')) p = (countryCode||'60') + p.slice(1);
+  return p;
+}
+
 function renderLoginScreen(){
   const en = state.language==='en';
   // Workshop illustration from the reference "ServisPro Management" slide
@@ -516,16 +527,59 @@ function kioskAccountTabHTML(){
     const quoteStatusLabel = en
       ? {draft:'Draft', sent:'Awaiting your response', accepted:'Approved', rejected:'Rejected', converted:'Converted', expired:'Expired'}
       : {draft:'Draf', sent:'Menunggu respons anda', accepted:'Diluluskan', rejected:'Ditolak', converted:'Ditukar', expired:'Tamat Tempoh'};
+    const loaded = data && data!=='loading';
+    const points = loaded ? (data.loyaltyPoints||0) : 0;
+    // countryCode/shopPhone come from get_my_customer_data() (see
+    // backend/schema.sql) rather than the staff-side db.settings/
+    // normalizePhone() -- this screen is reachable with no staff session at
+    // all, so db.settings is never populated here.
+    const shopTelHref = loaded && data.shopPhone ? '+' + kioskNormalizePhone(data.shopPhone, data.countryCode) : null;
     return `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div style="font-size:13.5px;font-weight:700;">${en?'Hi':'Hai'}, ${esc((state.custPortalProfile&&state.custPortalProfile.name)||'')}</div>
-        <button class="btn-icon" data-action="cust-portal-logout" title="${en?'Log out':'Log keluar'}">${ICONS.logout||''}</button>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);">${en?'Welcome':'Selamat Datang'}</div>
+          <div style="font-size:15px;font-weight:700;">${esc((state.custPortalProfile&&state.custPortalProfile.name)||'')}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          ${points>0 ? `<div title="${en?'Loyalty points':'Mata Kesetiaan'}" style="display:flex;align-items:center;gap:4px;background:rgba(230,163,53,.15);color:var(--accent);padding:5px 10px;border-radius:20px;font-size:12px;font-weight:700;">${ICONS.star} ${points}</div>` : ''}
+          <button class="btn-icon" data-action="cust-portal-logout" title="${en?'Log out':'Log keluar'}">${ICONS.logout||''}</button>
+        </div>
       </div>
-      ${data==='loading' || !data ? `<p style="text-align:center;color:var(--text-muted);">${en?'Loading…':'Memuatkan…'}</p>` : `
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);margin-bottom:6px;">${en?'Vehicles':'Kenderaan'}</div>
-        ${data.vehicles.length===0 ? `<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;">${en?'None on file.':'Tiada rekod.'}</div>` : data.vehicles.map(v=>`
-          <div style="padding:7px 10px;background:var(--panel-alt);border-radius:6px;margin-bottom:5px;font-size:12.5px;">${esc(v.plate)} ${v.model?'· '+esc(v.model):''}</div>
-        `).join('')}
+      ${!loaded ? `<p style="text-align:center;color:var(--text-muted);">${en?'Loading…':'Memuatkan…'}</p>` : `
+        ${data.vehicles.length>0 ? `
+        <div style="background:var(--panel-alt);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ICONS.car}</div>
+          <div style="min-width:0;">
+            <div style="font-size:15px;font-weight:700;">${esc(data.vehicles[0].plate)}</div>
+            <div style="font-size:12px;color:var(--text-muted);">${esc(data.vehicles[0].model||'-')}</div>
+          </div>
+        </div>
+        ${data.vehicles.length>1 ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">${data.vehicles.slice(1).map(v=>`<span class="pill" style="background:var(--panel-alt);">${esc(v.plate)}</span>`).join('')}</div>` : '<div style="margin-bottom:16px;"></div>'}
+        ` : ''}
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;">
+          <div class="clickable" data-kiosktab="book" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;">
+            <div style="width:42px;height:42px;border-radius:50%;background:var(--panel-alt);display:flex;align-items:center;justify-content:center;">${ICONS.calendar}</div>
+            <span style="font-size:10.5px;line-height:1.25;">${en?'Book Service':'Tempah Servis'}</span>
+          </div>
+          <div class="clickable" data-kiosktab="status" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;">
+            <div style="width:42px;height:42px;border-radius:50%;background:var(--panel-alt);display:flex;align-items:center;justify-content:center;">${ICONS.gauge}</div>
+            <span style="font-size:10.5px;line-height:1.25;">${en?'Job Status':'Status Kerja'}</span>
+          </div>
+          <div class="clickable" data-kiosktab="history" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;">
+            <div style="width:42px;height:42px;border-radius:50%;background:var(--panel-alt);display:flex;align-items:center;justify-content:center;">${ICONS.history}</div>
+            <span style="font-size:10.5px;line-height:1.25;">${en?'Service History':'Sejarah Servis'}</span>
+          </div>
+          ${shopTelHref ? `
+          <a href="tel:${shopTelHref}" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;color:inherit;text-decoration:none;">
+            <div style="width:42px;height:42px;border-radius:50%;background:rgba(217,68,68,.14);color:var(--danger);display:flex;align-items:center;justify-content:center;">${ICONS.phone}</div>
+            <span style="font-size:10.5px;line-height:1.25;">${en?'Road Assist':'Bantuan Jalan'}</span>
+          </a>` : `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;opacity:.4;">
+            <div style="width:42px;height:42px;border-radius:50%;background:var(--panel-alt);display:flex;align-items:center;justify-content:center;">${ICONS.phone}</div>
+            <span style="font-size:10.5px;line-height:1.25;">${en?'Road Assist':'Bantuan Jalan'}</span>
+          </div>`}
+        </div>
 
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);margin:14px 0 6px;">${en?'Quotations':'Sebut Harga'}</div>
         ${data.quotations.length===0 ? `<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;">${en?'None yet.':'Belum ada.'}</div>` : data.quotations.map(q=>`
@@ -542,8 +596,11 @@ function kioskAccountTabHTML(){
           </div>
         `).join('')}
 
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);margin:14px 0 6px;">${en?'Jobs':'Kerja'}</div>
-        ${data.jobs.length===0 ? `<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;">${en?'None yet.':'Belum ada.'}</div>` : data.jobs.map(j=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 6px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);">${en?'Last Service History':'Sejarah Servis Terkini'}</div>
+          ${data.jobs.length>0 ? `<span class="clickable" data-kiosktab="history" style="font-size:11px;color:var(--accent);font-weight:700;">${en?'View All':'Lihat Semua'}</span>` : ''}
+        </div>
+        ${data.jobs.length===0 ? `<div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;">${en?'No service history yet.':'Belum ada sejarah servis.'}</div>` : data.jobs.slice(0,5).map(j=>`
           <div style="display:flex;justify-content:space-between;gap:8px;padding:7px 10px;background:var(--panel-alt);border-radius:6px;margin-bottom:5px;">
             <div style="font-size:12.5px;">${esc(j.description||j.jobNo)}</div>
             <span class="pill pill-${j.status==='waiting'?'wait':j.status}">${statusLabel[j.status]||j.status}</span>
