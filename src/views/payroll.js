@@ -12,7 +12,7 @@ function currentMonthStr(){
 
 function monthLabel(monthStr){
   const [y,m] = monthStr.split('-').map(Number);
-  return new Date(y, m-1, 1).toLocaleDateString('ms-MY', {month:'long', year:'numeric'});
+  return new Date(y, m-1, 1).toLocaleDateString(dateLocale(), {month:'long', year:'numeric'});
 }
 
 function shiftMonth(monthStr, delta){

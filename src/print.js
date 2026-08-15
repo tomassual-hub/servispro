@@ -306,8 +306,8 @@ function printAttendanceSummary(staffId, month){
   const s = db.settings;
   const staffMember = db.staff.find(st=>st.id===staffId);
   const summary = computeAttendanceSummary(staffId, month);
-  const dayName = (dateStr)=> new Date(dateStr+'T00:00:00').toLocaleDateString(en?'en-US':'ms-MY', {weekday:'short'});
-  const timeOnly = (ts)=> ts ? new Date(ts).toLocaleTimeString(en?'en-US':'ms-MY',{hour:'2-digit',minute:'2-digit'}) : '—';
+  const dayName = (dateStr)=> new Date(dateStr+'T00:00:00').toLocaleDateString(dateLocale(), {weekday:'short'});
+  const timeOnly = (ts)=> ts ? new Date(ts).toLocaleTimeString(dateLocale(),{hour:'2-digit',minute:'2-digit'}) : '—';
   const area = document.getElementById('print-area');
   area.innerHTML = `
     <div class="print-invoice">

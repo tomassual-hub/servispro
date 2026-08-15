@@ -152,7 +152,7 @@ function dayAppointmentsModalHTML(dateStr){
   const en = state.language==='en';
   const statusLabel = {scheduled:tt('Dijadualkan'), done:tt('Selesai')||'Selesai', cancelled:tt('Dibatalkan')};
   const dayAppts = db.appointments.filter(a=>a.date===dateStr).sort((a,b)=>a.time.localeCompare(b.time));
-  const niceDate = new Date(dateStr+'T00:00:00').toLocaleDateString(en?'en-GB':'ms-MY', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+  const niceDate = new Date(dateStr+'T00:00:00').toLocaleDateString(dateLocale(), {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
   return `
     <h2>${niceDate}</h2>
     ${dayAppts.length===0 ? `<p style="font-size:12.5px;color:var(--text-muted);">${en?'No appointments this day.':'Tiada tempahan pada hari ini.'}</p>` : dayAppts.map(a=>{

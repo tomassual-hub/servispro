@@ -15,7 +15,7 @@ function renderAttendancePunch(){
   } else if(status==='invalid'){
     body = `<div class="empty">${ICONS.alert}<div>${en?'This QR code is invalid or has been reset. Ask your Admin for a fresh one.':'Kod QR ini tidak sah atau telah ditetapkan semula. Minta Admin anda untuk kod baharu.'}</div></div>`;
   } else if(status && status.punched){
-    const timeStr = new Date(status.ts).toLocaleTimeString(en?'en-GB':'ms-MY',{hour:'2-digit',minute:'2-digit'});
+    const timeStr = new Date(status.ts).toLocaleTimeString(dateLocale(),{hour:'2-digit',minute:'2-digit'});
     body = `
       <div style="text-align:center;">
         <div style="width:64px;height:64px;border-radius:50%;background:rgba(79,165,121,.15);color:var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">${ICONS.done}</div>
@@ -101,8 +101,8 @@ function attendanceSummaryModalHTML(staffId){
   const month = state.attendanceSummaryMonth || currentMonthStr();
   const isCurrentMonth = month === currentMonthStr();
   const summary = staffMember ? computeAttendanceSummary(staffId, month) : { presentDays:0, absentDays:0, totalHours:0, days:[] };
-  const dayName = (dateStr)=> new Date(dateStr+'T00:00:00').toLocaleDateString(en?'en-US':'ms-MY', {weekday:'short'});
-  const timeOnly = (ts)=> ts ? new Date(ts).toLocaleTimeString(en?'en-US':'ms-MY',{hour:'2-digit',minute:'2-digit'}) : '—';
+  const dayName = (dateStr)=> new Date(dateStr+'T00:00:00').toLocaleDateString(dateLocale(), {weekday:'short'});
+  const timeOnly = (ts)=> ts ? new Date(ts).toLocaleTimeString(dateLocale(),{hour:'2-digit',minute:'2-digit'}) : '—';
   return `
     <h2>${ICONS.calendar} ${en?'Attendance Summary':'Ringkasan Kehadiran'} — ${esc(staffMember?staffMember.name:'')}</h2>
     <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;">

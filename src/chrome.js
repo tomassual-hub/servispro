@@ -303,7 +303,7 @@ function renderTopbar(){
       <button class="btn-icon hamburger-btn" data-action="open-nav" title="${state.language==='en'?'Open menu':'Buka menu'}">${ICONS.menu}</button>
       <div style="min-width:0;" class="${state.view==='dashboard'?'topbar-title-dashboard':''}">
         <h1>${titles[state.view]}</h1>
-        <div class="date" style="margin-top:2px;">${new Date().toLocaleDateString('ms-MY',{weekday:'long', day:'2-digit', month:'long', year:'numeric'})}</div>
+        <div class="date" style="margin-top:2px;">${new Date().toLocaleDateString(dateLocale(),{weekday:'long', day:'2-digit', month:'long', year:'numeric'})}</div>
       </div>
     </div>
     <div class="global-search-wrap">

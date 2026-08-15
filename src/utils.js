@@ -72,8 +72,8 @@ function invoiceBalanceDue(inv){ return Math.max(0, inv.total - invoiceAmountPai
 function creditNotesForInvoice(invoiceId){
   return (db.creditNotes||[]).filter(cn=>cn.invoiceId===invoiceId);
 }
-function fmtDate(ts){ const d=new Date(ts); return d.toLocaleDateString('ms-MY',{day:'2-digit',month:'short',year:'numeric'}); }
-function fmtDateTime(ts){ const d=new Date(ts); return d.toLocaleDateString('ms-MY',{day:'2-digit',month:'short'}) + ' ' + d.toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDate(ts){ const d=new Date(ts); return d.toLocaleDateString(dateLocale(),{day:'2-digit',month:'short',year:'numeric'}); }
+function fmtDateTime(ts){ const d=new Date(ts); return d.toLocaleDateString(dateLocale(),{day:'2-digit',month:'short'}) + ' ' + d.toLocaleTimeString(dateLocale(),{hour:'2-digit',minute:'2-digit'}); }
 
 // Shared "Tarikh" filter dropdown -- same {k,l} option shape as every other
 // filter list in this codebase (see e.g. the `filters` array in

@@ -551,6 +551,7 @@ declare const SUPPORTED_LANGUAGES: { code: string; label: string }[];
 declare function setDisplayLanguage(code: string): void;
 declare function languagePickerHTML(extraClass?: string): string;
 declare function bindLanguagePickers(): void;
+declare function dateLocale(): string;
 
 declare function render(): void;
 declare function isModalBlocking(): boolean;

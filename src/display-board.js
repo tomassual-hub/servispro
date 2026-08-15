@@ -20,8 +20,8 @@ function renderDisplayBoard(){
     : {waiting:'Menunggu', progress:'Dalam Proses', done:'Sedia Diambil'};
   const statusOrder = {progress:0, done:1, waiting:2};
   const now = new Date();
-  const clockStr = now.toLocaleTimeString(en?'en-GB':'ms-MY',{hour:'2-digit',minute:'2-digit'});
-  const dateStr = now.toLocaleDateString(en?'en-GB':'ms-MY',{weekday:'long', day:'numeric', month:'long'});
+  const clockStr = now.toLocaleTimeString(dateLocale(),{hour:'2-digit',minute:'2-digit'});
+  const dateStr = now.toLocaleDateString(dateLocale(),{weekday:'long', day:'numeric', month:'long'});
   let rows = '';
   if(jobs===null || jobs===undefined){
     rows = `<div style="text-align:center;padding:60px 0;color:var(--text-muted);font-size:20px;">${en?'Loading…':'Memuatkan…'}</div>`;

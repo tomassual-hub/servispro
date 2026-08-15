@@ -188,6 +188,23 @@ function setDisplayLanguage(code){
   state.language = (code==='ms' || code==='en') ? code : 'en';
 }
 
+const LOCALE_MAP = {
+  ms:'ms-MY', en:'en-GB', zh:'zh-CN', ta:'ta-IN', id:'id-ID', th:'th-TH',
+  vi:'vi-VN', ko:'ko-KR', ja:'ja-JP', ru:'ru-RU',
+  // ar-SA defaults to the Islamic Umm al-Qura calendar in most JS engines --
+  // this app's dates are all Gregorian business records (job/invoice
+  // dates), so ar-EG (Gregorian by default there) avoids silently showing
+  // a completely different year/calendar to an Arabic-speaking user.
+  ar:'ar-EG',
+};
+// Every toLocaleDateString/toLocaleTimeString call in this app should go
+// through this instead of hardcoding a locale -- state.language alone
+// can't tell ja/ko/zh/etc. apart (see setDisplayLanguage() above), and
+// several call sites hardcoded 'ms-MY' unconditionally regardless of
+// language, which is why dates kept showing in Malay ("16 Ogos 2026") even
+// after switching the rest of the UI to English.
+function dateLocale(){ return LOCALE_MAP[state.displayLanguage] || 'ms-MY'; }
+
 // Shared <select> replacing the old binary MS/EN toggle button -- rendered
 // at every spot that button used to occupy (topbar, mobile more-sheet,
 // login screen, kiosk screen, account page). A single component so all 5
