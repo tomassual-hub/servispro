@@ -365,12 +365,14 @@ body::before{
   .dash-hero-icon-row{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;}
   .dash-hero .hero-notif{display:block;position:relative;}
   .hero-notif .btn-icon{background:rgba(26,22,8,.1);color:var(--accent-ink);}
-  /* Topbar's own bell/chat/title are redundant once the hero above is
-     showing its own copies (Admin dashboard only, see [data-hero-notif] in
+  /* Topbar's own bell/title are redundant once the hero above is showing
+     its own copies (Admin dashboard only, see [data-hero-notif] in
      render-core.js) -- hidden rather than not-rendered so no other view's
-     topbar layout has to account for their absence. */
+     topbar layout has to account for their absence. (Chat used to have its
+     own entry here too; it's folded into the bell everywhere now, see
+     getNotifications() in chrome.js, so there's no separate element left
+     to hide.) */
   .main[data-hero-notif="1"] .topbar-notif{display:none;}
-  .main[data-hero-notif="1"] .topbar-chat{display:none;}
   .main[data-hero-notif="1"] .topbar-title-dashboard{display:none;}
   /* Collapses the whole topbar strip to nothing so the hero below starts
      right at the very top of the screen, matching a reference app's home

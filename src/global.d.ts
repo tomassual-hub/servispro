@@ -621,7 +621,6 @@ declare function refreshPushSubscriptionState(): Promise<void>;
 declare function subscribeToPush(): Promise<boolean>;
 declare function unsubscribeFromPush(): Promise<boolean>;
 declare function renderNotifBell(extraClass?: string): string;
-declare function renderSupportChatButton(extraClass?: string): string;
 declare function renderTopbar(): string;
 declare function renderSyncErrorBanner(): string;
 declare function renderModal(): string;

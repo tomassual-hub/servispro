@@ -85,9 +85,9 @@ function attachHandlers(){
   document.querySelectorAll('[data-notif-nav]').forEach(el=>el.addEventListener('click', ()=>{
     if(el.dataset.notifNav==='mfa-settings'){ setState({modal:{type:'mfa-settings'}, notifOpen:false}); return; }
     if(el.dataset.notifNav==='support-chat'){
-      // Same "open my own thread" vs "land on the inbox list" branch as
-      // the standalone open-support-chat action this replaces (see
-      // getNotifications() in chrome.js for why this now lives here).
+      // "Open my own thread" vs "land on the inbox list" -- see
+      // getNotifications() in chrome.js for why support chat is reached
+      // through the bell's own dropdown now rather than a separate button.
       if(!canManage()) state.supportChatThreadId = state.currentStaff.id;
       setState({modal:{type:'support-chat'}, notifOpen:false});
       markSupportThreadRead(supportThreadIdForCurrentUser());
@@ -448,15 +448,6 @@ function attachHandlers(){
     setState({currentStaff:null, view:'dashboard', authMode:'login', mfaChallenge:null});
   });
 
-  bindAllAction('open-support-chat', ()=>{
-    // Opening as a regular staff member always means "my own thread" -- for
-    // a manager, land back on the inbox list unless they were already mid-
-    // thread (state.modal getting replaced by a fresh render shouldn't
-    // reset which thread they were reading).
-    if(!canManage()) state.supportChatThreadId = state.currentStaff.id;
-    setState({modal:{type:'support-chat'}});
-    markSupportThreadRead(supportThreadIdForCurrentUser());
-  });
   bindAllAction('open-support-thread', el=>{
     state.supportChatThreadId = el.dataset.id;
     render();

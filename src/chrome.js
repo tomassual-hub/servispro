@@ -148,8 +148,8 @@ function renderMobileMoreSheet(){
 // -- a different feature for a different moment: this one is a general
 // assistant you can ask anything, that one is "what's wrong with THIS
 // car"). Used to be the floating support-chat launcher; chat now only
-// needs one entry point (the topbar/hero chat icon, see
-// renderSupportChatButton), so this bubble was freed up for the AI
+// needs one entry point (folded into the topbar's own notification bell,
+// see getNotifications()), so this bubble was freed up for the AI
 // Assistant instead of two icons on screen doing similar jobs. Hidden
 // whenever a sheet/modal is already covering the screen so it can't float
 // on top of or behind either.
@@ -295,28 +295,6 @@ function renderNotifBell(extraClass){
     </div>` : ''}
   </div>`;
 }
-// Shared by the topbar and the mobile dashboard hero, same reasoning as
-// renderNotifBell above -- the hero collapses the rest of the topbar away
-// on mobile (see [data-hero-notif] in styles.css), so support chat needs
-// its own copy there too or it becomes unreachable on that one screen.
-function renderSupportChatButton(extraClass){
-  const en = state.language==='en';
-  const unread = supportUnreadCount();
-  // Wrapped the same way renderNotifBell wraps its own button -- the
-  // button itself already needs position:relative (as the anchor for its
-  // own .notif-badge), so the hero/topbar placement classes go on this
-  // outer wrapper instead, not the button, or the two position rules would
-  // just fight each other (inline style always wins over a stylesheet
-  // rule, so the button's own position:relative silently ate this
-  // function's first attempt at position:absolute placement here).
-  return `
-  <div class="notif-wrap ${extraClass||''}">
-    <button class="btn-icon" data-action="open-support-chat" title="${en?'Support':'Sokongan'}" style="position:relative;">
-      ${ICONS.chat}
-      ${unread>0 ? `<span class="notif-badge">${unread}</span>` : ''}
-    </button>
-  </div>`;
-}
 function renderTopbar(){
   const titles = {dashboard:t('title_dashboard'), jobs:t('title_jobs'), pos:t('title_pos'), inventory:t('title_inventory'), finance:t('title_finance'), customers:t('title_customers'), reports:t('title_reports'), staffpage:t('title_staffpage'), appointments:t('title_appointments'), settings:t('title_settings'), payroll:t('title_payroll'), techref: state.language==='en'?'Technical Reference':'Rujukan Teknikal', account: state.language==='en'?'Account':'Akaun'};
   const en = state.language==='en';
@@ -342,7 +320,6 @@ function renderTopbar(){
         <option value="all" ${state.currentBranch==='all'?'selected':''}>${en?'All Branches':'Semua Cawangan'}</option>
         ${db.branches.map(b=>`<option value="${b.id}" ${state.currentBranch===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}
       </select>` : ''}
-      ${renderSupportChatButton('topbar-chat')}
       ${renderNotifBell('topbar-notif')}
       <div class="topbar-account">
         <div class="theme-toggle" data-action="toggle-theme" title="${tt('Tukar tema')}">
@@ -369,14 +346,16 @@ function getNotifications(){
   const out = [];
   const now = Date.now();
   const en = state.language==='en';
-  // Folded into the bell instead of its own separate chip icon (see
-  // renderDashboardHero() in dashboard.js) -- the dashboard hero used to
-  // carry a standalone support-chat button right next to the bell; the
-  // bell now surfaces it as just another notification (same
+  // Folded into the bell instead of its own separate chip icon --
+  // renderTopbar() and the mobile dashboard hero (renderDashboardHero() in
+  // dashboard.js) both used to carry a standalone support-chat button
+  // right next to their own bell; every place the bell renders now
+  // surfaces this as just another notification instead (same
   // view:'support-chat' sentinel pattern as 'mfa-settings' below, handled
-  // in the [data-notif-nav] click listener in event-handlers.js) so a
-  // single icon covers both. Sits first since an unread reply from
-  // management is usually the most time-sensitive thing in this list.
+  // in the [data-notif-nav] click listener in event-handlers.js), so one
+  // icon covers both everywhere, not just on the dashboard. Sits first
+  // since an unread reply from management is usually the most time-
+  // sensitive thing in this list.
   const unreadSupport = supportUnreadCount();
   if(unreadSupport>0) out.push({tag:en?'Support':'Sokongan', label:unreadSupport+(en?' unread support message(s)':' mesej sokongan belum dibaca'), sub:en?'Tap to open the chat.':'Ketik untuk buka chat.', view:'support-chat', urgent:true});
   const lowStock = db.inventory.filter(i=>i.qty<=i.lowStock);
