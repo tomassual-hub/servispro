@@ -242,7 +242,6 @@ body::before{
 .dash-hero-brand{display:none;}
 .dash-hero-icon-row{display:none;}
 .hero-notif{display:none;}
-.hero-chat{display:none;}
 
 @media screen and (max-width:880px){
   .sidebar{display:none;}
@@ -285,22 +284,24 @@ body::before{
      and this rule needs to win regardless of where either happens to sit.
      backdrop-filter dropped too (inherited by every other .panel, just
      cancelled on this one) -- costs nothing visually since this banner
-     paints its own solid --accent background rather than relying on the
+     paints its own opaque background rather than relying on the
      glass-blur-over-content look other panels use.
      background lives on this compound selector too, for the exact same
      specificity reason as everything else here -- a plain `.dash-hero{...}`
-     attempt at the solid --accent fill (per the user's own request, once
-     position:fixed made background-vs-content paint order a non-issue)
-     lost to the unconditional `.dash-hero{background:linear-gradient(...
-     --accent-soft, --glass-1)}` desktop rule further down this file, the
-     exact same "later same-specificity rule wins regardless of media
-     query" trap already hit here more than once. Every color INSIDE the
-     banner (.dash-hero-brand/.stat-label/.stat-sub/.dash-hero-value/the
-     icon buttons, all further up this media query) was re-pointed from
-     colors tuned for the old dark gradient to --accent-ink -- the same
-     near-black already used for text on top of --accent everywhere else
-     in this app (primary buttons, the stat tiles) -- for contrast against
-     solid orange instead.
+     attempt at this fill (per the user's own request, once position:fixed
+     made background-vs-content paint order a non-issue) lost to the
+     unconditional `.dash-hero{background:linear-gradient(...--accent-soft,
+     --glass-1)}` desktop rule further down this file, the exact same
+     "later same-specificity rule wins regardless of media query" trap
+     already hit here more than once. Matches .stat-tile's own
+     `linear-gradient(135deg, var(--accent), var(--accent-2))` exactly --
+     the user first asked for solid --accent, then clarified they actually
+     meant "the same color as the quickstat tiles below" (Tempahan Hari
+     Ini etc.), which is this gradient, not a flat fill. Every color INSIDE
+     the banner (.dash-hero-brand/.stat-label/.stat-sub/.dash-hero-value/
+     the icon buttons, all further up this media query) already points at
+     --accent-ink -- the same near-black .stat-tile/.stat-tile-label use on
+     this exact gradient -- so no change needed there.
      position:fixed, not sticky: after FIVE separate fixes targeting
      position:sticky specifically (backdrop-filter's own compositing
      trap, transform:translateZ(0)'s space-reservation bug, flex-shrink/
@@ -334,7 +335,7 @@ body::before{
      correctly meant to cover this banner (or anything else on the page)
      when they're open; going higher than those would be a real bug, not
      an improvement. */
-  .panel.dash-hero{border-radius:0;position:fixed;top:0;left:0;right:0;z-index:10;background:var(--accent);backdrop-filter:none;-webkit-backdrop-filter:none;margin:0;max-width:none;}
+  .panel.dash-hero{border-radius:0;position:fixed;top:0;left:0;right:0;z-index:10;background:linear-gradient(135deg, var(--accent), var(--accent-2));backdrop-filter:none;-webkit-backdrop-filter:none;margin:0;max-width:none;}
   /* clamp() with a vw-based preferred size, not a fixed px guess -- this
      media query alone covers everything from a ~320px small phone up to
      an 880px tablet, and a fixed size that fits a 390px screen edge-to-
@@ -354,15 +355,16 @@ body::before{
      positioned icon in the top-right corner would sit right on top of the
      text itself instead of beside it. A normal flex row reserves its own
      space so the (much bigger) text below never has to share it.
-     Replaces the topbar's own bell/chat on this page -- see
-     [data-hero-notif] on .main below, and the topbar-title-dashboard rule
-     further down, which together clear the topbar so this hero banner is
-     the page's whole "header" on mobile. */
+     Replaces the topbar's own bell on this page -- see [data-hero-notif]
+     on .main below, and the topbar-title-dashboard rule further down,
+     which together clear the topbar so this hero banner is the page's
+     whole "header" on mobile. Just the one icon now, not a bell+chat
+     pair -- unread support messages surface as a regular entry in the
+     bell's own dropdown instead of a second standalone button (see
+     getNotifications() in chrome.js). */
   .dash-hero-icon-row{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;}
   .dash-hero .hero-notif{display:block;position:relative;}
   .hero-notif .btn-icon{background:rgba(26,22,8,.1);color:var(--accent-ink);}
-  .dash-hero .hero-chat{display:block;position:relative;}
-  .hero-chat .btn-icon{background:rgba(26,22,8,.1);color:var(--accent-ink);}
   /* Topbar's own bell/chat/title are redundant once the hero above is
      showing its own copies (Admin dashboard only, see [data-hero-notif] in
      render-core.js) -- hidden rather than not-rendered so no other view's

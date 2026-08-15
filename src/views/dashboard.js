@@ -21,7 +21,6 @@ function renderDashboardHero(){
   return `
   <div class="panel dash-hero" style="margin-bottom:22px;">
     <div class="dash-hero-icon-row">
-      ${renderSupportChatButton('hero-chat')}
       ${renderNotifBell('hero-notif')}
     </div>
     <div class="dash-hero-brand">ServisPro</div>

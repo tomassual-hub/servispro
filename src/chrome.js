@@ -369,6 +369,16 @@ function getNotifications(){
   const out = [];
   const now = Date.now();
   const en = state.language==='en';
+  // Folded into the bell instead of its own separate chip icon (see
+  // renderDashboardHero() in dashboard.js) -- the dashboard hero used to
+  // carry a standalone support-chat button right next to the bell; the
+  // bell now surfaces it as just another notification (same
+  // view:'support-chat' sentinel pattern as 'mfa-settings' below, handled
+  // in the [data-notif-nav] click listener in event-handlers.js) so a
+  // single icon covers both. Sits first since an unread reply from
+  // management is usually the most time-sensitive thing in this list.
+  const unreadSupport = supportUnreadCount();
+  if(unreadSupport>0) out.push({tag:en?'Support':'Sokongan', label:unreadSupport+(en?' unread support message(s)':' mesej sokongan belum dibaca'), sub:en?'Tap to open the chat.':'Ketik untuk buka chat.', view:'support-chat', urgent:true});
   const lowStock = db.inventory.filter(i=>i.qty<=i.lowStock);
   if(lowStock.length>0) out.push({tag:en?'Stock':'Stok', label:lowStock.length+(en?' item(s) low on stock':' item stok rendah'), sub:lowStock.slice(0,3).map(i=>i.name).join(', '), view:'inventory', urgent:true});
   const todayStr = localDateStr();

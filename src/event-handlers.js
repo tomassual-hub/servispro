@@ -84,6 +84,15 @@ function attachHandlers(){
   bindAction('retry-sync-now', async ()=>{ await runSaveCycle(); });
   document.querySelectorAll('[data-notif-nav]').forEach(el=>el.addEventListener('click', ()=>{
     if(el.dataset.notifNav==='mfa-settings'){ setState({modal:{type:'mfa-settings'}, notifOpen:false}); return; }
+    if(el.dataset.notifNav==='support-chat'){
+      // Same "open my own thread" vs "land on the inbox list" branch as
+      // the standalone open-support-chat action this replaces (see
+      // getNotifications() in chrome.js for why this now lives here).
+      if(!canManage()) state.supportChatThreadId = state.currentStaff.id;
+      setState({modal:{type:'support-chat'}, notifOpen:false});
+      markSupportThreadRead(supportThreadIdForCurrentUser());
+      return;
+    }
     setState({view:el.dataset.notifNav, notifOpen:false});
   }));
   const branchSel = document.getElementById('branch-selector');
