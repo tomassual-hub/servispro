@@ -784,6 +784,16 @@ tr:hover td{background:var(--glass-highlight);}
 .tabs-primary .tab-btn{background:none;border:none;border-radius:0;padding:10px 8px 12px;font-size:12px;font-weight:700;border-bottom:3px solid transparent;margin-bottom:-1.5px;}
 .tabs-primary .tab-btn.active{background:none;color:var(--accent);box-shadow:none;border-bottom-color:var(--accent);}
 
+/* .tabs-wrap: for a short, fixed tab set on a customer-facing screen (the
+   kiosk's Status/History/Book/Account row) where the base .tabs' horizontal
+   scroll isn't a safe bet -- on a narrow real phone (~360px) the last tab
+   before the visible edge gets hard-clipped mid-word with no scrollbar or
+   fade to hint there's more, so a first-time customer just sees a broken-
+   looking cut-off label instead of a "swipe for more" affordance. Wrapping
+   onto a second row instead means every label is always shown whole, no
+   scroll gesture required at all. */
+.tabs-wrap{flex-wrap:wrap;overflow-x:visible;width:100%;justify-content:center;}
+
 /* ---------- MODAL (glass, slightly more opaque than cards for readability
    over dense forms) ---------- */
 .modal-overlay{

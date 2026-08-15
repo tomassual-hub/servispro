@@ -400,7 +400,7 @@ function renderKioskScreen(){
         <div class="mark">${logoMarkHtml(112)}</div>
         <div class="sub">${en?'Customer Self-Service':'Layanan Kendiri Pelanggan'}</div>
       </div>
-      <div class="tabs" style="margin:0 auto 14px;">
+      <div class="tabs tabs-wrap" style="margin:0 auto 14px;">
         <div class="tab-btn ${tab==='status'?'active':''}" data-kiosktab="status">${en?'Job Status':'Status Kerja'}</div>
         <div class="tab-btn ${tab==='history'?'active':''}" data-kiosktab="history">${en?'Service History':'Sejarah Servis'}</div>
         <div class="tab-btn ${tab==='book'?'active':''}" data-kiosktab="book">${en?'Book Service':'Tempah Servis'}</div>
