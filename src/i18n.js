@@ -427,6 +427,20 @@ const MS_EN = {
   'Imbas / Kod Pantas (SKU)':'Scan / Quick Code (SKU)',
   'Imbas kod bar atau taip SKU, tekan Enter':'Scan barcode or type SKU, press Enter',
   'Tiada item sepadan.':'No matching items.',
+  // Found via a follow-up audit that cross-checked every tt() call site
+  // against this dictionary's actual keys (the earlier one only looked for
+  // tt() calls with no dictionary entry at all, not ones present under a
+  // different quoting style) -- these 8 tt() calls existed but had no
+  // dictionary entry at all, so they silently stayed in Malay regardless
+  // of language.
+  'Tiada penerangan kerja untuk dianalisis.':'No job description to analyze.',
+  'Tiada penerangan kerja atau dapatan pemeriksaan untuk dianalisis.':'No job description or inspection findings to analyze.',
+  'AI sedang sibuk buat masa ini. Cuba sebentar lagi.':'AI is busy right now. Try again shortly.',
+  'Maaf, tidak dapat jawab buat masa ini. Cuba lagi sebentar lagi.':'Sorry, unable to answer right now. Please try again shortly.',
+  'Tukar tema':'Switch theme',
+  'Menyambung invois ':'Linking invoice ',
+  'Kalendar':'Calendar',
+  'Tidak dapat kenal pasti pertuturan. Cuba lagi.':'Could not recognize speech. Try again.',
 };
 // Only Malay gets its own literal text back -- every OTHER language
 // (English included) reads through the English translation above. See the
