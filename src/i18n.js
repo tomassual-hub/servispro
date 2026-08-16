@@ -41,6 +41,7 @@ const SUPPORTED_LANGUAGES = [
 
 const I18N = {
   ms: {
+    nav_home:'Utama',
     nav_dashboard:'Papan Pemuka', nav_jobs:'Kad Kerja', nav_pos:'POS', nav_inventory:'Inventori', nav_finance:'Kewangan',
     nav_customers:'Pelanggan', nav_reports:'Laporan', nav_staff:'Staf', nav_appointments:'Tempahan', nav_settings:'Tetapan',
     title_dashboard:'Papan Pemuka', title_jobs:'Kad Kerja', title_pos:'Tempat Jualan (POS)', title_inventory:'Inventori Alat Ganti', title_finance:'Kewangan',
@@ -52,6 +53,7 @@ const I18N = {
     btn_logout:'Log Keluar', search_placeholder:'Cari pelanggan, plat, no. kerja, invois...',
   },
   en: {
+    nav_home:'Home',
     nav_dashboard:'Dashboard', nav_jobs:'Job Cards', nav_pos:'POS', nav_inventory:'Inventory', nav_finance:'Finance',
     nav_customers:'Customers', nav_reports:'Reports', nav_staff:'Staff', nav_appointments:'Appointments', nav_settings:'Settings',
     title_dashboard:'Dashboard', title_jobs:'Job Cards', title_pos:'Point of Sale (POS)', title_inventory:'Parts Inventory', title_finance:'Finance',
@@ -63,6 +65,7 @@ const I18N = {
     btn_logout:'Log Out', search_placeholder:'Search customers, plates, job/invoice no...',
   },
   zh: {
+    nav_home:'首页',
     nav_dashboard:'仪表板', nav_jobs:'工作卡', nav_pos:'POS', nav_inventory:'库存', nav_finance:'财务',
     nav_customers:'客户', nav_reports:'报告', nav_staff:'员工', nav_appointments:'预约', nav_settings:'设置',
     title_dashboard:'仪表板', title_jobs:'工作卡', title_pos:'销售点 (POS)', title_inventory:'零件库存', title_finance:'财务',
@@ -74,6 +77,7 @@ const I18N = {
     btn_logout:'登出', search_placeholder:'搜索客户、车牌、工作/发票编号...',
   },
   ta: {
+    nav_home:'முகப்பு',
     nav_dashboard:'முகப்புப் பலகை', nav_jobs:'பணி அட்டைகள்', nav_pos:'POS', nav_inventory:'சரக்கு', nav_finance:'நிதி',
     nav_customers:'வாடிக்கையாளர்கள்', nav_reports:'அறிக்கைகள்', nav_staff:'பணியாளர்கள்', nav_appointments:'சந்திப்புகள்', nav_settings:'அமைப்புகள்',
     title_dashboard:'முகப்புப் பலகை', title_jobs:'பணி அட்டைகள்', title_pos:'விற்பனை புள்ளி (POS)', title_inventory:'பாகங்கள் சரக்கு', title_finance:'நிதி',
@@ -85,6 +89,7 @@ const I18N = {
     btn_logout:'வெளியேறு', search_placeholder:'வாடிக்கையாளர், பதிவு எண், பணி/விலைப்பட்டியல் எண் தேடவும்...',
   },
   id: {
+    nav_home:'Beranda',
     nav_dashboard:'Dasbor', nav_jobs:'Kartu Kerja', nav_pos:'POS', nav_inventory:'Inventaris', nav_finance:'Keuangan',
     nav_customers:'Pelanggan', nav_reports:'Laporan', nav_staff:'Staf', nav_appointments:'Janji Temu', nav_settings:'Pengaturan',
     title_dashboard:'Dasbor', title_jobs:'Kartu Kerja', title_pos:'Titik Penjualan (POS)', title_inventory:'Inventaris Suku Cadang', title_finance:'Keuangan',
@@ -96,6 +101,7 @@ const I18N = {
     btn_logout:'Keluar', search_placeholder:'Cari pelanggan, plat, no. kerja/invoice...',
   },
   th: {
+    nav_home:'หน้าแรก',
     nav_dashboard:'แดชบอร์ด', nav_jobs:'ใบงาน', nav_pos:'POS', nav_inventory:'คลังสินค้า', nav_finance:'การเงิน',
     nav_customers:'ลูกค้า', nav_reports:'รายงาน', nav_staff:'พนักงาน', nav_appointments:'นัดหมาย', nav_settings:'ตั้งค่า',
     title_dashboard:'แดชบอร์ด', title_jobs:'ใบงาน', title_pos:'จุดขาย (POS)', title_inventory:'คลังอะไหล่', title_finance:'การเงิน',
@@ -107,6 +113,7 @@ const I18N = {
     btn_logout:'ออกจากระบบ', search_placeholder:'ค้นหาลูกค้า ป้ายทะเบียน เลขที่งาน/ใบแจ้งหนี้...',
   },
   vi: {
+    nav_home:'Trang chủ',
     nav_dashboard:'Bảng điều khiển', nav_jobs:'Thẻ công việc', nav_pos:'POS', nav_inventory:'Kho hàng', nav_finance:'Tài chính',
     nav_customers:'Khách hàng', nav_reports:'Báo cáo', nav_staff:'Nhân viên', nav_appointments:'Lịch hẹn', nav_settings:'Cài đặt',
     title_dashboard:'Bảng điều khiển', title_jobs:'Thẻ công việc', title_pos:'Điểm bán hàng (POS)', title_inventory:'Kho phụ tùng', title_finance:'Tài chính',
@@ -118,6 +125,7 @@ const I18N = {
     btn_logout:'Đăng xuất', search_placeholder:'Tìm khách hàng, biển số, số công việc/hóa đơn...',
   },
   ko: {
+    nav_home:'홈',
     nav_dashboard:'대시보드', nav_jobs:'작업 카드', nav_pos:'POS', nav_inventory:'재고', nav_finance:'재무',
     nav_customers:'고객', nav_reports:'보고서', nav_staff:'직원', nav_appointments:'예약', nav_settings:'설정',
     title_dashboard:'대시보드', title_jobs:'작업 카드', title_pos:'판매 시점 (POS)', title_inventory:'부품 재고', title_finance:'재무',
@@ -129,6 +137,7 @@ const I18N = {
     btn_logout:'로그아웃', search_placeholder:'고객, 번호판, 작업/송장 번호 검색...',
   },
   ja: {
+    nav_home:'ホーム',
     nav_dashboard:'ダッシュボード', nav_jobs:'作業カード', nav_pos:'POS', nav_inventory:'在庫', nav_finance:'財務',
     nav_customers:'顧客', nav_reports:'レポート', nav_staff:'スタッフ', nav_appointments:'予約', nav_settings:'設定',
     title_dashboard:'ダッシュボード', title_jobs:'作業カード', title_pos:'販売時点情報管理 (POS)', title_inventory:'部品在庫', title_finance:'財務',
@@ -140,6 +149,7 @@ const I18N = {
     btn_logout:'ログアウト', search_placeholder:'顧客、ナンバープレート、作業/請求書番号を検索...',
   },
   ru: {
+    nav_home:'Главная',
     nav_dashboard:'Панель управления', nav_jobs:'Наряд-заказы', nav_pos:'POS', nav_inventory:'Склад', nav_finance:'Финансы',
     nav_customers:'Клиенты', nav_reports:'Отчёты', nav_staff:'Персонал', nav_appointments:'Записи', nav_settings:'Настройки',
     title_dashboard:'Панель управления', title_jobs:'Наряд-заказы', title_pos:'Точка продаж (POS)', title_inventory:'Склад запчастей', title_finance:'Финансы',
@@ -151,6 +161,7 @@ const I18N = {
     btn_logout:'Выйти', search_placeholder:'Поиск клиента, номера, наряда/счёта...',
   },
   ar: {
+    nav_home:'الرئيسية',
     nav_dashboard:'لوحة التحكم', nav_jobs:'بطاقات العمل', nav_pos:'نقطة البيع', nav_inventory:'المخزون', nav_finance:'المالية',
     nav_customers:'العملاء', nav_reports:'التقارير', nav_staff:'الموظفون', nav_appointments:'المواعيد', nav_settings:'الإعدادات',
     title_dashboard:'لوحة التحكم', title_jobs:'بطاقات العمل', title_pos:'نقطة البيع (POS)', title_inventory:'مخزون القطع', title_finance:'المالية',

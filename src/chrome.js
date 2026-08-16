@@ -63,12 +63,15 @@ function renderMobileTabBar(){
   const en = state.language==='en';
   const primaryKeys = ['dashboard','jobs','pos','inventory'];
   const allItems = getNavItems();
-  // "Home" + a house icon here only -- the desktop sidebar and the mobile
-  // "More" sheet both still say the localized "Dashboard" label via
-  // getNavItems() itself (unchanged), since only this one tab is meant to
-  // read as a reference app's literal "Home" tab.
+  // "Home" (t('nav_home')) + a house icon here only -- the desktop sidebar
+  // and the mobile "More" sheet both still say the localized "Dashboard"
+  // label via getNavItems() itself (unchanged), since only this one tab is
+  // meant to read as a reference app's "Home" tab. Was hardcoded to the
+  // literal English word 'Home' regardless of language until a real
+  // translation for it existed -- now goes through the same I18N system as
+  // every other nav label instead of being a permanent English-only outlier.
   const primary = primaryKeys.map(k=>allItems.find(it=>it.k===k)).filter(Boolean)
-    .map(it=>it.k==='dashboard' ? {...it, l:'Home', icon:ICONS.home} : it);
+    .map(it=>it.k==='dashboard' ? {...it, l:t('nav_home'), icon:ICONS.home} : it);
   const isPrimaryView = primary.some(it=>it.k===state.view);
   return `
   <div class="mobile-tabbar">

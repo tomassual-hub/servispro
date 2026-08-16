@@ -532,6 +532,11 @@ body::before{
   .modal{max-width:100%;border-radius:20px 20px 0 0;position:fixed;bottom:0;left:0;margin:0;max-height:92vh;}
   .table-wrap{overflow-x:auto;}
   .table-wrap::before{content:'↔ Leret jadual untuk lihat lebih';display:block;font-size:10.5px;color:var(--text-muted);text-align:center;margin-bottom:6px;}
+  /* Same MS-only-gets-its-own-text, everyone-else-gets-English fallback as
+     tt() (see i18n.js) -- this string lives in CSS, so it can't go through
+     tt() itself; :root[data-lang] (set once per render() call) is the only
+     way for a stylesheet value to know the selected language at all. */
+  :root:not([data-lang="ms"]) .table-wrap::before{content:'↔ Swipe table to see more';}
   .staff-grid{grid-template-columns:1fr;}
 }
 

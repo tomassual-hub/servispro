@@ -108,6 +108,12 @@ function manageModalFocus(){
 
 function render(){
   document.documentElement.setAttribute('data-theme', state.theme);
+  // Lets CSS itself branch on language for the rare cases where a string
+  // lives in a stylesheet (a ::before/::after content: value) instead of
+  // JS-rendered markup -- those can't go through tt()/t() at all, so
+  // without this hook they'd stay hardcoded Malay forever regardless of
+  // the language picker. See .table-wrap::before in styles.css.
+  document.documentElement.setAttribute('data-lang', state.displayLanguage);
   resetInactivityTimer();
   const root = document.getElementById('root');
   if(state.attendanceMode){
