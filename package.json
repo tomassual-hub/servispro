@@ -16,8 +16,8 @@
   },
   "devDependencies": {
     "@bubblewrap/cli": "^1.25.0",
-    "playwright": "^1.48.0",
-    "typescript": "^5.6.0"
+    "playwright": "^1.62.1",
+    "typescript": "^7.0.2"
   },
   "overrides": {
     "uuid": "^11.1.1"
